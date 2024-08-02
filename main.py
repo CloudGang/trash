@@ -31,6 +31,14 @@ state_choices.insert(0, ALL_STATES_TITLE)
 with st.sidebar.form(key="my_form"):
     selectbox_state = st.selectbox("Choose a state", state_choices)
     selectbox_direction = st.selectbox("Renter or Lender", ["Renting", "Lending"])
+    numberinput_threshold = st.number_input(
+        """Set top N Migration per state""",
+        value=3,
+        min_value=1,
+        max_value=25,
+        step=1,
+        format="%i",
+    )
     
     # User input fields
     username = st.text_input("Username")

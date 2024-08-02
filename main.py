@@ -13,43 +13,7 @@ if not os.path.isfile("data/db.csv"):
     df = pd.DataFrame(columns=["Username", "Password", "City", "Email", "Phone"])
     df.to_csv("data/db.csv", index=False)
 
-loc = get_geolocation()
-
 st.set_page_config(page_title="Rentable", layout="wide", page_icon="📍")
-
-st.markdown(
-    """
-    <style>
-    .small-font {
-        font-size:12px;
-        font-style: italic;
-        color: #b1a7a6;
-    }
-
-    #audio{autoplay:true;}
-    #MainMenu{visibility: hidden;}
-    footer{visibility: hidden;}
-    .css-14xtw13 e8zbici0{visibility: hidden;}
-    .css-m70y {display:none}
-    .st-emotion-cache-zq5wmm.ezrtsby0{visibility: hidden;}
-    .st-emotion-cache-zq5wmm.ezrtsby0{display:none}
-    .styles_terminalButton__JBj5T{visibility: hidden;}
-    .styles_terminalButton__JBj5T{display:none}
-    .viewerBadge_container__r5tak.styles_viewerBadge__CvC9N{visibility: hidden;}
-    .viewerBadge_container__r5tak.styles_viewerBadge__CvC9N{display:none}
-    [data-testid='stSidebarNav'] > ul {min-height: 50vh;}
-    [data-testid='stSidebarNav'] > ul {color: red;}
-    .language-java {color: black;}
-    .css-nps9tx, .e1m3hlzs0, .css-1p0bytv, .e1m3hlzs1 {
-    visibility: collapse;
-    height: 0px;
-    }
-    .stException {
-        display: none;
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
 
 TABLE_PAGE_LEN = 10
 
@@ -58,8 +22,8 @@ state_migration = pd.read_csv("data/state_migration.csv")
 state_summary = pd.read_csv("data/state_migration_summary.csv")
 
 st.title("Rent")
-#location = get_geolocation()
-#location_json = get_page_location()
+
+loc = get_geolocation()
 
 state_choices = list(state_coordinates["name"])
 state_choices.insert(0, ALL_STATES_TITLE)

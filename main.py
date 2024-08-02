@@ -11,7 +11,7 @@ if not os.path.isfile("data/db.csv"):
     df = pd.DataFrame(columns=["Username", "Password", "City", "Email", "Phone"])
     df.to_csv("data/db.csv", index=False)
 
-st.set_page_config(page_title="Migration Network", layout="wide", page_icon="📍")
+st.set_page_config(page_title="Rentable", layout="wide", page_icon="📍")
 
 st.markdown(
     """
@@ -53,21 +53,13 @@ state_coordinates = data_munging.get_coordinates()
 state_migration = pd.read_csv("data/state_migration.csv")
 state_summary = pd.read_csv("data/state_migration_summary.csv")
 
-st.title("State Movement")
+st.title("Rent")
 state_choices = list(state_coordinates["name"])
 state_choices.insert(0, ALL_STATES_TITLE)
 
 with st.sidebar.form(key="my_form"):
     selectbox_state = st.selectbox("Choose a state", state_choices)
-    selectbox_direction = st.selectbox("Choose a direction", ["Incoming", "Outgoing"])
-    numberinput_threshold = st.number_input(
-        """Set top N Migration per state""",
-        value=3,
-        min_value=1,
-        max_value=25,
-        step=1,
-        format="%i",
-    )
+    selectbox_direction = st.selectbox("Renter or Lender", ["Renting", "Lending"])
     
     # User input fields
     username = st.text_input("Username")
@@ -77,23 +69,16 @@ with st.sidebar.form(key="my_form"):
     city = st.text_input("City")
     
     st.markdown(
-        '<p class="small-font">Results Limited to top 5 per State in overall US</p>',
+        '<p class="small-font">Results Limited to 15 miles</p>',
         unsafe_allow_html=True,
     )
     
-    pressed = st.form_submit_button("Build Migration Map")
+    pressed = st.form_submit_button("Submit")
 
-expander = st.sidebar.expander("What is this?")
+expander = st.sidebar.expander("Insurance")
 expander.write(
     """
-This app allows users to view migration between states from 2018-2019.
-Overall US plots all states with substantial migration-based relationships with other states.
-Any other option plots only migration from or to a given state. This map will be updated
-to show migration between 2019 and 2020 once new census data comes out.
-
-Incoming: Shows for a given state, the percent of their **total inbound migration from** another state.
-
-Outgoing: Shows for a given state, the percent of their **total outbound migration to** another state.
+To be updated
 """
 )
 
@@ -136,23 +121,6 @@ if pressed:
         df = pd.DataFrame([[username, password, city, email, phone]], columns=["Username", "Password", "City", "Email", "Phone"])
         df.to_csv("data/db.csv", mode="a", header=False, index=False)
         st.success("Data successfully added to CSV")
-
-    edges = data_munging.compute_edges(
-        state_migration,
-        threshold=numberinput_threshold,
-        state=selectbox_state,
-        direction=selectbox_direction,
-    )
-
-    nodes = data_munging.compute_nodes(
-        state_coordinates, edges, direction=selectbox_direction
-    )
-    G = data_munging.build_network(nodes, edges)
-    migration_plot = plot_migration.build_migration_chart(G, selectbox_direction)
-    network_loc.plotly_chart(migration_plot)
-
-    clean_edges = data_munging.table_edges(edges, selectbox_direction)
-    table_loc.table(clean_edges.head(20))
 
     # Show user input city on the map
     if city:

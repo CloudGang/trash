@@ -7,3 +7,4 @@ plotly
 streamlit
 psycopg2-binary
 sqlalchemy
+data_munging

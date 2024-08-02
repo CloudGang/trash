@@ -4,8 +4,8 @@ import pandas as pd
 import streamlit as st
 
 ALL_STATES_TITLE = "OVERALL US"
-DIRECT_DICT = {"Outgoing": "mig_state", "Incoming": "state"}
-OPPOSITE_DICT = {"Incoming": "mig_state", "Outgoing": "state"}
+DIRECT_DICT = {"Lending": "mig_state", "Renting": "state"}
+OPPOSITE_DICT = {"Renting": "mig_state", "Lending": "state"}
 
 
 def get_coordinates():
@@ -18,7 +18,7 @@ def get_coordinates():
     return state_coordinates
 
 
-def compute_edges(state_migration, threshold, state=None, direction="Incoming"):
+def compute_edges(state_migration, threshold, state=None, direction="Renting"):
 
     assert direction is not None
     assert state is not None
@@ -60,7 +60,7 @@ def compute_edges(state_migration, threshold, state=None, direction="Incoming"):
     return state_migration
 
 
-def compute_nodes(state_coordinates, migration_edges, direction="Incoming"):
+def compute_nodes(state_coordinates, migration_edges, direction="Renting"):
 
     df_direction = DIRECT_DICT[direction]
 
@@ -99,8 +99,8 @@ def do_the_whole_thing():
 
 def table_edges(edges, direction):
     direction_map_dict = {
-        "Incoming": {"colname": "% of Incoming Migration from Source"},
-        "Outgoing": {"colname": "% of Outgoing Migration from Source"},
+        "Renting": {"colname": "% of Renting from Source"},
+        "Lending": {"colname": "% of Lending from Source"},
     }
     edges = (
         edges.drop(columns="combine")
@@ -166,15 +166,15 @@ def display_state_summary(state, df):
         )
 
         return f"""
-        **Inbound Migration Total (%):** 
+        **Rented Total (%):** 
         
         {"{:,}".format(inbound_migration)} ({inbound_pct_total})
 
-        **Outbound Migration Total (%):** 
+        **Lended Migration Total (%):** 
         
         {"{:,}".format(outbound_migration)} ({outbound_pct_total}) 
 
-        **Within State Migration Total (%):** 
+        **Within State Total (%):** 
         
         {"{:,}".format(within_state_migration)} ({within_state_pct_total})
         """

@@ -53,13 +53,13 @@ state_coordinates = data_munging.get_coordinates()
 state_migration = pd.read_csv("data/state_migration.csv")
 state_summary = pd.read_csv("data/state_migration_summary.csv")
 
-st.title("State Movement")
+st.title("Rentable")
 state_choices = list(state_coordinates["name"])
 state_choices.insert(0, ALL_STATES_TITLE)
 
 with st.sidebar.form(key="my_form"):
     selectbox_state = st.selectbox("Choose a state", state_choices)
-    selectbox_direction = st.selectbox("Choose a direction", ["Incoming", "Outgoing"])
+    selectbox_direction = st.selectbox("Choose a direction", ["Renter", "Lender"])
     numberinput_threshold = st.number_input(
         """Set top N Migration per state""",
         value=3,
@@ -68,6 +68,16 @@ with st.sidebar.form(key="my_form"):
         step=1,
         format="%i",
     )
+    
+
+    st.markdown(
+        '<p class="small-font">Results Limited to top 5 per State in overall US</p>',
+        unsafe_allow_html=True,
+    )
+    
+    pressed = st.form_submit_button("Build Migration Map")
+
+with st.sidebar.form(key="my_form2"):
     
     # User input fields
     username = st.text_input("Username")
@@ -81,8 +91,8 @@ with st.sidebar.form(key="my_form"):
         unsafe_allow_html=True,
     )
     
-    pressed = st.form_submit_button("Build Migration Map")
-
+    pressed2 = st.form_submit_button("Build Migration Map")
+    
 expander = st.sidebar.expander("What is this?")
 expander.write(
     """
@@ -131,12 +141,6 @@ clean_edges = data_munging.table_edges(edges, selectbox_direction)
 table_loc.table(clean_edges.head(20))
 
 if pressed:
-    if username and password and city and email and phone:
-        # Append data to CSV
-        df = pd.DataFrame([[username, password, city, email, phone]], columns=["Username", "Password", "City", "Email", "Phone"])
-        df.to_csv("data/db.csv", mode="a", header=False, index=False)
-        st.success("Data successfully added to CSV")
-
     edges = data_munging.compute_edges(
         state_migration,
         threshold=numberinput_threshold,
@@ -153,7 +157,13 @@ if pressed:
 
     clean_edges = data_munging.table_edges(edges, selectbox_direction)
     table_loc.table(clean_edges.head(20))
-
+    
+if pressed2:
+    if username and password and city and email and phone:
+        # Append data to CSV
+        df = pd.DataFrame([[username, password, city, email, phone]], columns=["Username", "Password", "City", "Email", "Phone"])
+        df.to_csv("data/db.csv", mode="a", header=False, index=False)
+        st.success("Data successfully added to CSV")
     # Show user input city on the map
     if city:
         city_coordinates = state_coordinates[state_coordinates["name"] == city]

@@ -9,7 +9,7 @@ import data_munging
 logging.basicConfig(level=logging.INFO)
 
 # Initialize connection using Streamlit secrets
-conn = st.experimental_connection("postgresql", type="sql")
+conn = st.connection("postgresql", type="sql")
 
 def create_table_if_not_exists():
     """Create the users table if it doesn't exist."""

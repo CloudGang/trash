@@ -19,6 +19,29 @@ st.markdown(
         font-style: italic;
         color: #b1a7a6;
     }
+
+    #audio{autoplay:true;}
+    #MainMenu{visibility: hidden;}
+    footer{visibility: hidden;}
+    .css-14xtw13 e8zbici0{visibility: hidden;}
+    .css-m70y {display:none}
+    .st-emotion-cache-zq5wmm.ezrtsby0{visibility: hidden;}
+    .st-emotion-cache-zq5wmm.ezrtsby0{display:none}
+    .styles_terminalButton__JBj5T{visibility: hidden;}
+    .styles_terminalButton__JBj5T{display:none}
+    .viewerBadge_container__r5tak.styles_viewerBadge__CvC9N{visibility: hidden;}
+    .viewerBadge_container__r5tak.styles_viewerBadge__CvC9N{display:none}
+    [data-testid='stSidebarNav'] > ul {min-height: 50vh;}
+    [data-testid='stSidebarNav'] > ul {color: red;}
+    .language-java {color: black;}
+    .css-nps9tx, .e1m3hlzs0, .css-1p0bytv, .e1m3hlzs1 {
+    visibility: collapse;
+    height: 0px;
+    }
+	 .stException {
+	    display: none;
+	}
+    
     </style>
     """,
     unsafe_allow_html=True,

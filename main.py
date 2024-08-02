@@ -1,14 +1,16 @@
 from logzero import logger
-
 import pandas as pd
 import streamlit as st
-
-import data_munging
 import plot_migration
-
+import data_munging
 from data_munging import ALL_STATES_TITLE
 
-padding = 0
+# Ensure the 'data/db.csv' file exists and has appropriate headers
+import os
+if not os.path.isfile("data/db.csv"):
+    df = pd.DataFrame(columns=["Username", "Password", "City", "Email", "Phone"])
+    df.to_csv("data/db.csv", index=False)
+
 st.set_page_config(page_title="Migration Network", layout="wide", page_icon="📍")
 
 st.markdown(
@@ -38,15 +40,12 @@ st.markdown(
     visibility: collapse;
     height: 0px;
     }
-	 .stException {
-	    display: none;
-	}
-    
+    .stException {
+        display: none;
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 
 TABLE_PAGE_LEN = 10
 
@@ -57,7 +56,6 @@ state_summary = pd.read_csv("data/state_migration_summary.csv")
 st.title("State Movement")
 state_choices = list(state_coordinates["name"])
 state_choices.insert(0, ALL_STATES_TITLE)
-
 
 with st.sidebar.form(key="my_form"):
     selectbox_state = st.selectbox("Choose a state", state_choices)
@@ -70,11 +68,19 @@ with st.sidebar.form(key="my_form"):
         step=1,
         format="%i",
     )
-
+    
+    # User input fields
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    email = st.text_input("Email")
+    phone = st.text_input("Phone Number")
+    city = st.text_input("City")
+    
     st.markdown(
         '<p class="small-font">Results Limited to top 5 per State in overall US</p>',
         unsafe_allow_html=True,
     )
+    
     pressed = st.form_submit_button("Build Migration Map")
 
 expander = st.sidebar.expander("What is this?")
@@ -91,19 +97,11 @@ Outgoing: Shows for a given state, the percent of their **total outbound migrati
 """
 )
 
-# mig1 = plot_migration.build_migration_chart(G)
-# mig_plot = st.plotly_chart(mig1)
-
 network_place, _, descriptor = st.columns([6, 1, 3])
-
 network_loc = network_place.empty()
-
-
-# Create starting graph
 
 descriptor.subheader(data_munging.display_state(selectbox_state))
 descriptor.write(data_munging.display_state_summary(selectbox_state, state_summary))
-
 
 edges = data_munging.compute_edges(
     state_migration,
@@ -111,7 +109,6 @@ edges = data_munging.compute_edges(
     state=ALL_STATES_TITLE,
     direction=selectbox_direction,
 )
-
 
 nodes = data_munging.compute_nodes(
     state_coordinates, edges, direction=selectbox_direction
@@ -134,6 +131,12 @@ clean_edges = data_munging.table_edges(edges, selectbox_direction)
 table_loc.table(clean_edges.head(20))
 
 if pressed:
+    if username and password and city and email and phone:
+        # Append data to CSV
+        df = pd.DataFrame([[username, password, city, email, phone]], columns=["Username", "Password", "City", "Email", "Phone"])
+        df.to_csv("data/db.csv", mode="a", header=False, index=False)
+        st.success("Data successfully added to CSV")
+
     edges = data_munging.compute_edges(
         state_migration,
         threshold=numberinput_threshold,
@@ -144,11 +147,17 @@ if pressed:
     nodes = data_munging.compute_nodes(
         state_coordinates, edges, direction=selectbox_direction
     )
-    # st.table(nodes[["name", "latitude", "Migration"]].head(10))
     G = data_munging.build_network(nodes, edges)
-    # st.table(G.edges)
     migration_plot = plot_migration.build_migration_chart(G, selectbox_direction)
     network_loc.plotly_chart(migration_plot)
 
     clean_edges = data_munging.table_edges(edges, selectbox_direction)
     table_loc.table(clean_edges.head(20))
+
+    # Show user input city on the map
+    if city:
+        city_coordinates = state_coordinates[state_coordinates["name"] == city]
+        if not city_coordinates.empty:
+            st.map(city_coordinates[["latitude", "longitude"]])
+        else:
+            st.warning("City not found on the map.")

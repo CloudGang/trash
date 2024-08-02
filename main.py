@@ -10,7 +10,7 @@ import data_munging
 logging.basicConfig(level=logging.INFO)
 
 # Read database connection details from Streamlit secrets
-db_config = st.secrets["connections.postgresql"]
+db_config = st.secrets["postgresql"]
 
 # Initialize connection using psycopg2
 def get_db_connection():

@@ -1,17 +1,62 @@
-from logzero import logger
-import pandas as pd
+import logging
+import psycopg2
 import streamlit as st
-from streamlit_js_eval import streamlit_js_eval, copy_to_clipboard, create_share_link, get_geolocation
-import json
+from streamlit_js_eval import get_geolocation
+from data_munging import ALL_STATES_TITLE
 import plot_migration
 import data_munging
-from data_munging import ALL_STATES_TITLE
 
-# Ensure the 'data/db.csv' file exists and has appropriate headers
-import os
-if not os.path.isfile("data/db.csv"):
-    df = pd.DataFrame(columns=["Username", "Password", "City", "Email", "Phone"])
-    df.to_csv("data/db.csv", index=False)
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+
+# PostgreSQL connection parameters from Streamlit secrets
+DB_URL = f"postgresql://{st.secrets['connections.postgresql']['username']}:" \
+         f"{st.secrets['connections.postgresql']['password']}@" \
+         f"{st.secrets['connections.postgresql']['host']}:" \
+         f"{st.secrets['connections.postgresql']['port']}/" \
+         f"{st.secrets['connections.postgresql']['database']}?sslmode=" \
+         f"{st.secrets['connections.postgresql']['sslmode']}"
+
+def get_connection():
+    """Establish a connection to the PostgreSQL database."""
+    return psycopg2.connect(DB_URL, application_name="$ docs_quickstart_python")
+
+def create_table_if_not_exists():
+    """Create the users table if it doesn't exist."""
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    username TEXT UNIQUE,
+                    password TEXT,
+                    email TEXT,
+                    phone TEXT,
+                    city TEXT
+                )
+            """)
+            conn.commit()
+
+def insert_user(username, password, email, phone, city):
+    """Insert a new user into the users table."""
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO users (username, password, email, phone, city)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (username, password, email, phone, city))
+            conn.commit()
+
+def retrieve_users():
+    """Retrieve all users from the users table."""
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT username, city FROM users")
+            rows = cur.fetchall()
+            return rows
+
+# Ensure the table is created
+create_table_if_not_exists()
 
 st.set_page_config(page_title="Rentable", layout="wide", page_icon="📍")
 st.markdown(
@@ -111,10 +156,9 @@ table_loc.table(clean_edges.head(20))
 
 if pressed:
     if username and password and city and email and phone:
-        # Append data to CSV
-        df = pd.DataFrame([[username, password, city, email, phone]], columns=["Username", "Password", "City", "Email", "Phone"])
-        df.to_csv("data/db.csv", mode="a", header=False, index=False)
-        st.success("Data successfully added to CSV")
+        # Insert data into the database
+        insert_user(username, password, email, phone, city)
+        st.success("Data successfully added to the database")
 
     # Show user input city on the map
     if city:
@@ -123,3 +167,13 @@ if pressed:
             st.map(city_coordinates[["latitude", "longitude"]])
         else:
             st.warning("City not found on the map.")
+
+# Add buttons to retrieve and display username and city
+if st.button("Retrieve and Display User Information"):
+    users = retrieve_users()
+    if users:
+        st.write("User Information:")
+        for username, city in users:
+            st.write(f"Username: {username}, City: {city}")
+    else:
+        st.write("No users found in the database.")

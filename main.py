@@ -1,5 +1,4 @@
 import logging
-import psycopg2
 import streamlit as st
 from streamlit_js_eval import get_geolocation
 from data_munging import ALL_STATES_TITLE
@@ -9,51 +8,42 @@ import data_munging
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 
-# PostgreSQL connection parameters from Streamlit secrets
-DB_URL = f"postgresql://{st.secrets['connections.postgresql']['username']}:" \
-         f"{st.secrets['connections.postgresql']['password']}@" \
-         f"{st.secrets['connections.postgresql']['host']}:" \
-         f"{st.secrets['connections.postgresql']['port']}/" \
-         f"{st.secrets['connections.postgresql']['database']}?sslmode=" \
-         f"{st.secrets['connections.postgresql']['sslmode']}"
-
-def get_connection():
-    """Establish a connection to the PostgreSQL database."""
-    return psycopg2.connect(DB_URL, application_name="$ docs_quickstart_python")
+# Initialize connection using Streamlit secrets
+conn = st.experimental_connection("postgresql", type="sql")
 
 def create_table_if_not_exists():
     """Create the users table if it doesn't exist."""
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                    username TEXT UNIQUE,
-                    password TEXT,
-                    email TEXT,
-                    phone TEXT,
-                    city TEXT
-                )
-            """)
-            conn.commit()
+    query = """
+        CREATE TABLE IF NOT EXISTS users (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            username TEXT UNIQUE,
+            password TEXT,
+            email TEXT,
+            phone TEXT,
+            city TEXT
+        )
+    """
+    with conn.cursor() as cur:
+        cur.execute(query)
+        conn.commit()
 
 def insert_user(username, password, email, phone, city):
     """Insert a new user into the users table."""
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO users (username, password, email, phone, city)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (username, password, email, phone, city))
-            conn.commit()
+    query = """
+        INSERT INTO users (username, password, email, phone, city)
+        VALUES (%s, %s, %s, %s, %s)
+    """
+    with conn.cursor() as cur:
+        cur.execute(query, (username, password, email, phone, city))
+        conn.commit()
 
 def retrieve_users():
     """Retrieve all users from the users table."""
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT username, city FROM users")
-            rows = cur.fetchall()
-            return rows
+    query = "SELECT username, city FROM users"
+    with conn.cursor() as cur:
+        cur.execute(query)
+        rows = cur.fetchall()
+        return rows
 
 # Ensure the table is created
 create_table_if_not_exists()

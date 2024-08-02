@@ -5,12 +5,12 @@ import networkx as nx
 import plotly.graph_objects as go
 
 
-def build_migration_chart(G, direction="Incoming"):
+def build_migration_chart(G, direction="Renting"):
     l = 1  # the arrow length
     widh = 0.035  # 2*widh is the width of the arrow base as triangle
     direction_map_dict = {
-        "Incoming": {"tooltip": "Inflow % for state:", "color": "blue"},
-        "Outgoing": {"tooltip": "Outflow % from source:", "color": "red"},
+        "Renting": {"tooltip": "Inflow % for state:", "color": "blue"},
+        "Lending": {"tooltip": "Outflow % from source:", "color": "red"},
     }
     direction_label = direction_map_dict[direction]["tooltip"]
     edge_color = direction_map_dict[direction]["color"]

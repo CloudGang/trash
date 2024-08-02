@@ -13,35 +13,32 @@ conn = st.connection("postgresql", type="sql")
 
 def create_table_if_not_exists():
     """Create the users table if it doesn't exist."""
-    query = """
-        CREATE TABLE IF NOT EXISTS users (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            username TEXT UNIQUE,
-            password TEXT,
-            email TEXT,
-            phone TEXT,
-            city TEXT
-        )
-    """
     with conn.cursor() as cur:
-        cur.execute(query)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                username TEXT UNIQUE,
+                password TEXT,
+                email TEXT,
+                phone TEXT,
+                city TEXT
+            )
+        """)
         conn.commit()
 
 def insert_user(username, password, email, phone, city):
     """Insert a new user into the users table."""
-    query = """
-        INSERT INTO users (username, password, email, phone, city)
-        VALUES (%s, %s, %s, %s, %s)
-    """
     with conn.cursor() as cur:
-        cur.execute(query, (username, password, email, phone, city))
+        cur.execute("""
+            INSERT INTO users (username, password, email, phone, city)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (username, password, email, phone, city))
         conn.commit()
 
 def retrieve_users():
     """Retrieve all users from the users table."""
-    query = "SELECT username, city FROM users"
     with conn.cursor() as cur:
-        cur.execute(query)
+        cur.execute("SELECT username, city FROM users")
         rows = cur.fetchall()
         return rows
 

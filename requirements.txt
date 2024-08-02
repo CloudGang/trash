@@ -5,4 +5,5 @@ numpy
 pandas
 plotly
 streamlit
-psycopg2
+psycopg2-binary
+sqlalchemy

@@ -1,35 +1,48 @@
 import logging
-import streamlit as st
+import os
 import psycopg2
+import streamlit as st
 from streamlit_js_eval import get_geolocation
-from data_munging import ALL_STATES_TITLE
 import plot_migration
 import data_munging
 
 # Set up logging
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# Access the Streamlit secrets
-db_config = st.secrets.get("connections.postgresql", {})
+# Access environment variables
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_DATABASE = os.environ.get("DB_DATABASE")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_SSLMODE = os.environ.get("DB_SSLMODE")
 
-# Check if the required keys are present
-required_keys = ["host", "port", "database", "username", "password", "sslmode"]
-missing_keys = [key for key in required_keys if key not in db_config]
-if missing_keys:
-    st.error(f"Missing key(s) in Streamlit secrets: {', '.join(missing_keys)}")
+# Check for missing environment variables
+required_env_vars = ["DB_HOST", "DB_PORT", "DB_DATABASE", "DB_USER", "DB_PASSWORD", "DB_SSLMODE"]
+missing_env_vars = [var for var in required_env_vars if not os.environ.get(var)]
+if missing_env_vars:
+    st.error(f"Missing environment variables: {', '.join(missing_env_vars)}")
     st.stop()
 
-# Initialize connection using psycopg2
 def get_db_connection():
-    conn = psycopg2.connect(
-        dbname=db_config["database"],
-        user=db_config["username"],
-        password=db_config["password"],
-        host=db_config["host"],
-        port=db_config["port"],
-        sslmode=db_config["sslmode"]
-    )
-    return conn
+    """Establishes a database connection."""
+    try:
+        conn = psycopg2.connect(
+            dbname=DB_DATABASE,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT,
+            sslmode=DB_SSLMODE
+        )
+        return conn
+    except psycopg2.Error as e:
+        logger.error(f"Error connecting to database: {e}")
+        raise
+
+# Rest of the code with potential error handling and modularization
+
 
 def create_table_if_not_exists():
     """Create the users table if it doesn't exist."""

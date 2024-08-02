@@ -14,6 +14,18 @@ if not os.path.isfile("data/db.csv"):
     df.to_csv("data/db.csv", index=False)
 
 st.set_page_config(page_title="Rentable", layout="wide", page_icon="📍")
+st.markdown(
+    """
+    <style>
+    .small-font {
+        font-size:12px;
+        font-style: italic;
+        color: #b1a7a6;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 TABLE_PAGE_LEN = 10
 

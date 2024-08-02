@@ -13,11 +13,11 @@ logging.basicConfig(level=logging.INFO)
 db_config = st.secrets.get("connections.postgresql", {})
 
 # Check if the required keys are present
-required_keys = ["dialect", "host", "port", "database", "username", "password", "sslmode"]
-for key in required_keys:
-    if key not in db_config:
-        st.error(f"Missing key in Streamlit secrets: {key}")
-        st.stop()
+required_keys = ["host", "port", "database", "username", "password", "sslmode"]
+missing_keys = [key for key in required_keys if key not in db_config]
+if missing_keys:
+    st.error(f"Missing key(s) in Streamlit secrets: {', '.join(missing_keys)}")
+    st.stop()
 
 # Initialize connection using psycopg2
 def get_db_connection():

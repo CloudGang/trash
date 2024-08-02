@@ -1,6 +1,8 @@
 from logzero import logger
 import pandas as pd
 import streamlit as st
+from streamlit_js_eval import streamlit_js_eval, copy_to_clipboard, create_share_link, get_geolocation
+import json
 import plot_migration
 import data_munging
 from data_munging import ALL_STATES_TITLE
@@ -77,7 +79,9 @@ with st.sidebar.form(key="my_form"):
     )
     
     pressed = st.form_submit_button("Submit")
-st.write(f"Screen width is {streamlit_js_eval(js_expressions='screen.width', key = 'SCR')}")
+
+    loc = get_geolocation()
+    st.write(f"Your coordinates are {loc}")
 
 expander = st.sidebar.expander("Insurance")
 expander.write(

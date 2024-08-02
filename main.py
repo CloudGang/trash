@@ -54,8 +54,8 @@ state_migration = pd.read_csv("data/state_migration.csv")
 state_summary = pd.read_csv("data/state_migration_summary.csv")
 
 st.title("Rent")
-location = get_geolocation()
-location_json = get_page_location()
+#location = get_geolocation()
+#location_json = get_page_location()
 st.write(f"Screen width is {streamlit_js_eval(js_expressions='screen.width', key = 'SCR')}")
 
 state_choices = list(state_coordinates["name"])

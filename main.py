@@ -13,6 +13,8 @@ if not os.path.isfile("data/db.csv"):
     df = pd.DataFrame(columns=["Username", "Password", "City", "Email", "Phone"])
     df.to_csv("data/db.csv", index=False)
 
+loc = get_geolocation()
+
 st.set_page_config(page_title="Rentable", layout="wide", page_icon="📍")
 
 st.markdown(
@@ -79,9 +81,9 @@ with st.sidebar.form(key="my_form"):
     )
     
     pressed = st.form_submit_button("Submit")
-
-    loc = get_geolocation()
-    st.write(f"Your coordinates are {loc}")
+    if st.checkbox("Refresh location"):
+        loc = get_geolocation()
+        st.write(f"Your coordinates are {loc}")
 
 expander = st.sidebar.expander("Insurance")
 expander.write(

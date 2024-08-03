@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # Database connection details (directly use the DB_URL)
-DB_URL = "postgresql://supreme:Z0lGvbB_Hs7Lvt104K2ZFw@stoic-duke-15588.7tt.aws-us-east-1.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full"
+DB_URL = "postgresql://supreme:Z0lGvbB_Hs7Lvt104K2ZFw@stoic-duke-15588.7tt.aws-us-east-1.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full&sslrootcert=/home/appuser/.postgresql/root.crt"
 
 def get_db_connection():
     """Establishes a database connection."""

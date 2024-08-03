@@ -18,4 +18,4 @@ with st.form(key="my_form",clear_on_submit=True):
         form_callback(stock_ticker_input,note_input)
 
 st.info(" #### Show contents of the CSV file :point_down:")
-st.dataframe(pd.read_csv("notes.csv",names=["Stock","Note"]),height=300)
+st.dataframe(pd.read_csv("data/db.csv",names=["Stock","Note"]),height=300)

@@ -2,11 +2,12 @@ from logzero import logger
 import pandas as pd
 import streamlit as st
 from streamlit_js_eval import get_geolocation
+from opencage.geocoder import OpenCageGeocode
 import os
 
 # Ensure the 'data/db.csv' file exists and has appropriate headers
 if not os.path.isfile("data/db.csv"):
-    df = pd.DataFrame(columns=["Username", "Password", "City", "Email", "Phone"])
+    df = pd.DataFrame(columns=["Username", "Password", "City", "State", "Email", "Phone"])
     df.to_csv("data/db.csv", index=False)
 
 st.set_page_config(page_title="Rentable", layout="wide", page_icon="📍")
@@ -25,6 +26,10 @@ st.markdown(
 
 st.title("Rent")
 
+# Replace with your OpenCage API key
+OPENCAGE_API_KEY = "your_opencage_api_key"
+geocoder = OpenCageGeocode(OPENCAGE_API_KEY)
+
 loc = get_geolocation()
 
 with st.sidebar.form(key="my_form"):
@@ -34,6 +39,7 @@ with st.sidebar.form(key="my_form"):
     email = st.text_input("Email")
     phone = st.text_input("Phone Number")
     city = st.text_input("City")
+    state = st.text_input("State")
     
     st.markdown(
         '<p class="small-font">Results Limited to 15 miles</p>',
@@ -53,19 +59,20 @@ To be updated
 )
 
 if pressed:
-    if username and password and city and email and phone:
+    if username and password and city and state and email and phone:
         # Append data to CSV
-        df = pd.DataFrame([[username, password, city, email, phone]], columns=["Username", "Password", "City", "Email", "Phone"])
+        df = pd.DataFrame([[username, password, city, state, email, phone]], columns=["Username", "Password", "City", "State", "Email", "Phone"])
         df.to_csv("data/db.csv", mode="a", header=False, index=False)
         st.success("Data successfully added to CSV")
 
     # Show user input city on the map
-    if city:
-        # Dummy data for city coordinates (latitude and longitude)
-        city_coordinates = {"City": ["NEW YORK"], "Latitude": [37.7749], "Longitude": [-122.4194]}
-        city_df = pd.DataFrame(city_coordinates)
-        if city in city_df["City"].values:
-            st.map(city_df[["Latitude", "Longitude"]])
+    if city and state:
+        query = f"{city}, {state}"
+        results = geocoder.geocode(query)
+        if results:
+            latitude = results[0]['geometry']['lat']
+            longitude = results[0]['geometry']['lng']
+            st.map(pd.DataFrame([[latitude, longitude]], columns=['lat', 'lon']))
         else:
             st.warning("City not found on the map.")
 

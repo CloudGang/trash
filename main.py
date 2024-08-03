@@ -62,7 +62,7 @@ if pressed:
     # Show user input city on the map
     if city:
         # Dummy data for city coordinates (latitude and longitude)
-        city_coordinates = {"City": ["SampleCity"], "Latitude": [37.7749], "Longitude": [-122.4194]}
+        city_coordinates = {"City": ["NEW YORK"], "Latitude": [37.7749], "Longitude": [-122.4194]}
         city_df = pd.DataFrame(city_coordinates)
         if city in city_df["City"].values:
             st.map(city_df[["Latitude", "Longitude"]])

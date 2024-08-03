@@ -1,6 +1,8 @@
 from logzero import logger
 import pandas as pd
 import streamlit as st
+from streamlit_js_eval import streamlit_js_eval, copy_to_clipboard, create_share_link, get_geolocation
+import json
 import plot_migration
 import data_munging
 from data_munging import ALL_STATES_TITLE
@@ -12,7 +14,6 @@ if not os.path.isfile("data/db.csv"):
     df.to_csv("data/db.csv", index=False)
 
 st.set_page_config(page_title="Rentable", layout="wide", page_icon="📍")
-
 st.markdown(
     """
     <style>
@@ -21,27 +22,6 @@ st.markdown(
         font-style: italic;
         color: #b1a7a6;
     }
-
-    #audio{autoplay:true;}
-    #MainMenu{visibility: hidden;}
-    footer{visibility: hidden;}
-    .css-14xtw13 e8zbici0{visibility: hidden;}
-    .css-m70y {display:none}
-    .st-emotion-cache-zq5wmm.ezrtsby0{visibility: hidden;}
-    .st-emotion-cache-zq5wmm.ezrtsby0{display:none}
-    .styles_terminalButton__JBj5T{visibility: hidden;}
-    .styles_terminalButton__JBj5T{display:none}
-    .viewerBadge_container__r5tak.styles_viewerBadge__CvC9N{visibility: hidden;}
-    .viewerBadge_container__r5tak.styles_viewerBadge__CvC9N{display:none}
-    [data-testid='stSidebarNav'] > ul {min-height: 50vh;}
-    [data-testid='stSidebarNav'] > ul {color: red;}
-    .language-java {color: black;}
-    .css-nps9tx, .e1m3hlzs0, .css-1p0bytv, .e1m3hlzs1 {
-    visibility: collapse;
-    height: 0px;
-    }
-    .stException {
-        display: none;
     </style>
     """,
     unsafe_allow_html=True,
@@ -54,9 +34,8 @@ state_migration = pd.read_csv("data/state_migration.csv")
 state_summary = pd.read_csv("data/state_migration_summary.csv")
 
 st.title("Rent")
-location = get_geolocation()
-location_json = get_page_location()
-st.write(f"Screen width is {streamlit_js_eval(js_expressions='screen.width', key = 'SCR')}")
+
+loc = get_geolocation()
 
 state_choices = list(state_coordinates["name"])
 state_choices.insert(0, ALL_STATES_TITLE)
@@ -64,6 +43,14 @@ state_choices.insert(0, ALL_STATES_TITLE)
 with st.sidebar.form(key="my_form"):
     selectbox_state = st.selectbox("Choose a state", state_choices)
     selectbox_direction = st.selectbox("Renter or Lender", ["Renting", "Lending"])
+    numberinput_threshold = st.number_input(
+        """Set top N Migration per state""",
+        value=3,
+        min_value=1,
+        max_value=25,
+        step=1,
+        format="%i",
+    )
     
     # User input fields
     username = st.text_input("Username")
@@ -78,6 +65,9 @@ with st.sidebar.form(key="my_form"):
     )
     
     pressed = st.form_submit_button("Submit")
+    if st.checkbox("Refresh location"):
+        loc = get_geolocation()
+        st.write(f"Your coordinates are {loc}")
 
 expander = st.sidebar.expander("Insurance")
 expander.write(

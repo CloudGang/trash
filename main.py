@@ -1,87 +1,18 @@
-import logging
-import os
-import psycopg2
+from logzero import logger
+import pandas as pd
 import streamlit as st
-from streamlit_js_eval import get_geolocation
 import plot_migration
 import data_munging
+from data_munging import ALL_STATES_TITLE
 
-# Set up logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
-
-# Access environment variables
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
-DB_DATABASE = os.environ.get("DB_DATABASE")
-DB_USER = os.environ.get("DB_USER")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_SSLMODE = os.environ.get("DB_SSLMODE")
-
-# Check for missing environment variables
-required_env_vars = ["DB_HOST", "DB_PORT", "DB_DATABASE", "DB_USER", "DB_PASSWORD", "DB_SSLMODE"]
-missing_env_vars = [var for var in required_env_vars if not os.environ.get(var)]
-if missing_env_vars:
-    st.error(f"Missing environment variables: {', '.join(missing_env_vars)}")
-    st.stop()
-
-def get_db_connection():
-    """Establishes a database connection."""
-    try:
-        conn = psycopg2.connect(
-            dbname=DB_DATABASE,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=DB_PORT,
-            sslmode=DB_SSLMODE
-        )
-        return conn
-    except psycopg2.Error as e:
-        logger.error(f"Error connecting to database: {e}")
-        raise
-
-# Rest of the code with potential error handling and modularization
-
-
-def create_table_if_not_exists():
-    """Create the users table if it doesn't exist."""
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                    username TEXT UNIQUE,
-                    password TEXT,
-                    email TEXT,
-                    phone TEXT,
-                    city TEXT
-                )
-            """)
-            conn.commit()
-
-def insert_user(username, password, email, phone, city):
-    """Insert a new user into the users table."""
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO users (username, password, email, phone, city)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (username, password, email, phone, city))
-            conn.commit()
-
-def retrieve_users():
-    """Retrieve all users from the users table."""
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT username, city FROM users")
-            rows = cur.fetchall()
-            return rows
-
-# Ensure the table is created
-create_table_if_not_exists()
+# Ensure the 'data/db.csv' file exists and has appropriate headers
+import os
+if not os.path.isfile("data/db.csv"):
+    df = pd.DataFrame(columns=["Username", "Password", "City", "Email", "Phone"])
+    df.to_csv("data/db.csv", index=False)
 
 st.set_page_config(page_title="Rentable", layout="wide", page_icon="📍")
+
 st.markdown(
     """
     <style>
@@ -90,6 +21,27 @@ st.markdown(
         font-style: italic;
         color: #b1a7a6;
     }
+
+    #audio{autoplay:true;}
+    #MainMenu{visibility: hidden;}
+    footer{visibility: hidden;}
+    .css-14xtw13 e8zbici0{visibility: hidden;}
+    .css-m70y {display:none}
+    .st-emotion-cache-zq5wmm.ezrtsby0{visibility: hidden;}
+    .st-emotion-cache-zq5wmm.ezrtsby0{display:none}
+    .styles_terminalButton__JBj5T{visibility: hidden;}
+    .styles_terminalButton__JBj5T{display:none}
+    .viewerBadge_container__r5tak.styles_viewerBadge__CvC9N{visibility: hidden;}
+    .viewerBadge_container__r5tak.styles_viewerBadge__CvC9N{display:none}
+    [data-testid='stSidebarNav'] > ul {min-height: 50vh;}
+    [data-testid='stSidebarNav'] > ul {color: red;}
+    .language-java {color: black;}
+    .css-nps9tx, .e1m3hlzs0, .css-1p0bytv, .e1m3hlzs1 {
+    visibility: collapse;
+    height: 0px;
+    }
+    .stException {
+        display: none;
     </style>
     """,
     unsafe_allow_html=True,
@@ -102,8 +54,9 @@ state_migration = pd.read_csv("data/state_migration.csv")
 state_summary = pd.read_csv("data/state_migration_summary.csv")
 
 st.title("Rent")
-
-loc = get_geolocation()
+location = get_geolocation()
+location_json = get_page_location()
+st.write(f"Screen width is {streamlit_js_eval(js_expressions='screen.width', key = 'SCR')}")
 
 state_choices = list(state_coordinates["name"])
 state_choices.insert(0, ALL_STATES_TITLE)
@@ -111,14 +64,6 @@ state_choices.insert(0, ALL_STATES_TITLE)
 with st.sidebar.form(key="my_form"):
     selectbox_state = st.selectbox("Choose a state", state_choices)
     selectbox_direction = st.selectbox("Renter or Lender", ["Renting", "Lending"])
-    numberinput_threshold = st.number_input(
-        """Set top N Migration per state""",
-        value=3,
-        min_value=1,
-        max_value=25,
-        step=1,
-        format="%i",
-    )
     
     # User input fields
     username = st.text_input("Username")
@@ -133,9 +78,6 @@ with st.sidebar.form(key="my_form"):
     )
     
     pressed = st.form_submit_button("Submit")
-    if st.checkbox("Refresh location"):
-        loc = get_geolocation()
-        st.write(f"Your coordinates are {loc}")
 
 expander = st.sidebar.expander("Insurance")
 expander.write(
@@ -179,9 +121,10 @@ table_loc.table(clean_edges.head(20))
 
 if pressed:
     if username and password and city and email and phone:
-        # Insert data into the database
-        insert_user(username, password, email, phone, city)
-        st.success("Data successfully added to the database")
+        # Append data to CSV
+        df = pd.DataFrame([[username, password, city, email, phone]], columns=["Username", "Password", "City", "Email", "Phone"])
+        df.to_csv("data/db.csv", mode="a", header=False, index=False)
+        st.success("Data successfully added to CSV")
 
     # Show user input city on the map
     if city:
@@ -190,13 +133,3 @@ if pressed:
             st.map(city_coordinates[["latitude", "longitude"]])
         else:
             st.warning("City not found on the map.")
-
-# Add buttons to retrieve and display username and city
-if st.button("Retrieve and Display User Information"):
-    users = retrieve_users()
-    if users:
-        st.write("User Information:")
-        for username, city in users:
-            st.write(f"Username: {username}, City: {city}")
-    else:
-        st.write("No users found in the database.")

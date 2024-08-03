@@ -27,7 +27,7 @@ st.markdown(
 st.title("Rent")
 
 # Replace with your OpenCage API key
-OPENCAGE_API_KEY = "your_opencage_api_key"
+OPENCAGE_API_KEY = "496d9125f13247c3bac64a32da343b0b"
 geocoder = OpenCageGeocode(OPENCAGE_API_KEY)
 
 loc = get_geolocation()

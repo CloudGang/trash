@@ -67,7 +67,7 @@ if pressed:
         # Append data to CSV
         df = pd.DataFrame([[username, password, city, state, email, phone, zipcode]], columns=["Username", "Password", "City", "State", "Email", "Phone", "Zipcode"])
         df.to_csv("data/db.csv", mode="a", header=False, index=False)
-        st.success("Data successfully added to CSV")
+        st.success("Data successfully added.")
 
     # Show user input city on the map
     if zipcode:
@@ -77,7 +77,7 @@ if pressed:
             longitude = city_data.iloc[0]['lng']
             st.map(pd.DataFrame([[latitude, longitude]], columns=['lat', 'lon']))
         else:
-            st.warning("City not found in Florida.csv.")
+            st.warning("City not found in.")
 
 st.write(
     """

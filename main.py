@@ -2,6 +2,7 @@ from logzero import logger
 import pandas as pd
 import streamlit as st
 from streamlit_js_eval import get_geolocation
+from opencage.geocoder import OpenCageGeocode
 import os
 
 # Ensure the 'data/db.csv' file exists and has appropriate headers
@@ -25,6 +26,10 @@ st.markdown(
 
 st.title("Rent")
 
+# Replace with your OpenCage API key
+OPENCAGE_API_KEY = "your_opencage_api_key"
+geocoder = OpenCageGeocode(OPENCAGE_API_KEY)
+
 # Load Florida cities data
 florida_cities = pd.read_csv("data/Florida.csv")
 
@@ -38,7 +43,7 @@ with st.sidebar.form(key="my_form"):
     phone = st.text_input("Phone Number")
     city = st.text_input("City")
     state = st.text_input("State")
-    zipcode = st.text_input("Zipcode")
+    zipcode = st.text_input("Zipcode (County FIPS)", max_chars=5)
     
     st.markdown(
         '<p class="small-font">Results Limited to 15 miles</p>',
@@ -68,9 +73,11 @@ if pressed:
     if zipcode:
         city_data = florida_cities[florida_cities["county_fips"] == int(zipcode)]
         if not city_data.empty:
-            st.map(city_data[["lat", "lng"]])
+            latitude = city_data.iloc[0]['lat']
+            longitude = city_data.iloc[0]['lng']
+            st.map(pd.DataFrame([[latitude, longitude]], columns=['lat', 'lon']))
         else:
-            st.warning("City not found for the given zipcode.")
+            st.warning("City not found in Florida.csv.")
 
 st.write(
     """

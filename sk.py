@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 def form_callback(data1, data2):    
-    with open('notes.csv', 'a+') as f:    #Append & read mode
+    with open('data/db.csv', 'a+') as f:    #Append & read mode
         f.write(f"{data1},{data2}\n")
 
 with st.form(key="my_form",clear_on_submit=True):

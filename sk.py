@@ -7,8 +7,8 @@ from psycopg2 import sql
 connection_params = {
     'dbname': 'defaultdb',
     'user': 'supreme',
-    'password': 'Z0lGvbB_Hs7Lvt104K2ZFw',
-    'host': 'stoic-duke-15588.7tt.aws-us-east-1.cockroachlabs.cloud',
+    'password': '3Do-4GKNMvmv8AUwUCKmXw',
+    'host': 'connectordector-15608.7tt.aws-us-east-1.cockroachlabs.cloud',
     'port': '26257',
     'sslmode': 'verify-full'
 }

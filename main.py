@@ -199,11 +199,11 @@ if pressed:
 
 st.header("Search for Items")
 search_option = st.selectbox("Search by", ["Item", "Zipcode", "Category"])
-search_term = st.text_input(f"Search {search_option}")
 
 if search_option == "Category":
     search_term = st.selectbox("Select Category", ["Power Tools", "Manual Tools", "Gardening Tools", "Other"])
-    search_term = search_term.lower()
+else:
+    search_term = st.text_input(f"Search {search_option}")
 
 if st.button("Search"):
     search_by = search_option.lower()

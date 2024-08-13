@@ -169,6 +169,7 @@ if pressed:
             else:
                 st.error("Please fill in all fields and upload an image.")
         else:
+            # Renters cannot register items
             save_renter(username, zipcode)
             st.success("Renter successfully registered.")
     else:

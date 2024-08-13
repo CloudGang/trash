@@ -28,15 +28,16 @@ def save_data_to_file():
     with open(data_file_path, 'w') as f:
         json.dump(data, f, indent=4)
 
-def save_renter(username, zipcode):
+def save_renter(username, zipcode, phone):
     """Save renter data to the in-memory data structure and file."""
     data['renters'].append({
         'username': username,
-        'zipcode': zipcode
+        'zipcode': zipcode,
+        'phone': phone
     })
     save_data_to_file()
 
-def save_lender(username, zipcode, item, category, image_path):
+def save_lender(username, zipcode, item, category, image_path, phone):
     """Save lender data and item to the in-memory data structure and file."""
     lender = next((l for l in data['lenders'] if l['username'] == username), None)
     if lender:

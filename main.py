@@ -116,7 +116,7 @@ geocoder = OpenCageGeocode(OPENCAGE_API_KEY)
 
 loc = get_geolocation()
 if st.button("Refresh"):
-    st.rerun()st.rerun()
+    st.rerun()
 with st.sidebar.form(key="my_form"):
     # Radio button for role selection
     role = st.radio("I am a", ["Renter :open_hands:", "Lender :hammer_and_pick:"])

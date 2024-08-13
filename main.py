@@ -129,6 +129,7 @@ with st.sidebar.form(key="my_form"):
     state = st.text_input("State")
     zipcode = st.text_input("Zipcode (County FIPS)", max_chars=5)
 
+    # Conditional fields based on role
     if role == "Lender :hammer_and_pick:":
         item = st.text_input("Item to Register")
         image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])

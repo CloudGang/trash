@@ -187,13 +187,13 @@ if pressed:
                 with open(image_path, "wb") as f:
                     f.write(image_file.read())
                 
-                save_lender(username, zipcode, phone, item, category, image_path)
+                save_lender(username, zipcode, item, category, image_path, phone)
                 st.success("Item successfully registered.")
             else:
                 st.error("Please fill in all fields and upload an image.")
         else:
             # Renters cannot register items
-            save_renter(username, phone, zipcode)
+            save_renter(username, zipcode, phone)
             st.success("Renter successfully registered.")
     else:
         st.error("Please fill in all required fields.")

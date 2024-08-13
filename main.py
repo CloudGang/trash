@@ -118,7 +118,7 @@ loc = get_geolocation()
 
 with st.sidebar.form(key="my_form"):
     # Radio button for role selection
-    role = st.radio("I am a", ["Lender :hammer_and_pick:", "Renter :open_hands:"])
+    role = st.radio("I am a", ["Renter :open_hands:", "Lender :hammer_and_pick:"])
     
     # User input fields
     username = st.text_input("Username")
@@ -130,12 +130,20 @@ with st.sidebar.form(key="my_form"):
     zipcode = st.text_input("Zipcode (County FIPS)", max_chars=5)
 
     # Conditional fields based on role
-    if role == "Lender :hammer_and_pick:":
-        item = st.text_input("Item to Register")
-        image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])
-    else:
+#    if role == "Lender :hammer_and_pick:":
+#        item = st.text_input("Item to Register")
+#        image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])
+#    else:
+#        item = None
+#        image_file = None
+
+    # Conditional fields based on role
+    if role == "Renter :open_hands:":
         item = None
         image_file = None
+    else:
+        item = st.text_input("Item to Register")
+        image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])
 
     st.markdown(
         '<p class="small-font">Results Limited to 15 miles</p>',

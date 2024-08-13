@@ -36,7 +36,7 @@ def save_renter(username, zipcode):
     })
     save_data_to_file()
 
-def save_lender(username, zipcode, item, image_path):
+def save_lender(username, zipcode, item, category, image_path):
     """Save lender data and item to the in-memory data structure and file."""
     lender = next((l for l in data['lenders'] if l['username'] == username), None)
     if lender:
@@ -46,6 +46,7 @@ def save_lender(username, zipcode, item, image_path):
         lender['items'].append({
             'zipcode': zipcode,
             'item': item,
+            'category': category,
             'image_path': image_path
         })
     else:
@@ -54,35 +55,36 @@ def save_lender(username, zipcode, item, image_path):
             'items': [{
                 'zipcode': zipcode,
                 'item': item,
+                'category': category,
                 'image_path': image_path
             }]
         })
     save_data_to_file()
 
-def search_items(search_by, search_term):
-    """Search items in the in-memory data structure by item or zipcode."""
+def search_items(search_by, search_term, category=None):
+    """Search items in the in-memory data structure by item, zipcode, or category."""
     search_term = search_term.lower()
     results = []
-    if search_by == 'item':
-        for lender in data['lenders']:
-            for item in lender['items']:
-                if search_term in item['item'].lower():
-                    results.append({
-                        'username': lender['username'],
-                        'zipcode': item['zipcode'],
-                        'item': item['item'],
-                        'image_path': item['image_path']
-                    })
-    elif search_by == 'zipcode':
-        for lender in data['lenders']:
-            for item in lender['items']:
-                if search_term in item['zipcode']:
-                    results.append({
-                        'username': lender['username'],
-                        'zipcode': item['zipcode'],
-                        'item': item['item'],
-                        'image_path': item['image_path']
-                    })
+    for lender in data['lenders']:
+        for item in lender['items']:
+            if category and item['category'].lower() != category.lower():
+                continue
+            if search_by == 'item' and search_term in item['item'].lower():
+                results.append({
+                    'username': lender['username'],
+                    'zipcode': item['zipcode'],
+                    'item': item['item'],
+                    'image_path': item['image_path'],
+                    'phone': lender.get('phone', 'N/A')
+                })
+            elif search_by == 'zipcode' and search_term in item['zipcode']:
+                results.append({
+                    'username': lender['username'],
+                    'zipcode': item['zipcode'],
+                    'item': item['item'],
+                    'image_path': item['image_path'],
+                    'phone': lender.get('phone', 'N/A')
+                })
     return results
 
 def get_city_data(zipcode):
@@ -115,6 +117,7 @@ OPENCAGE_API_KEY = "your_opencage_api_key"
 geocoder = OpenCageGeocode(OPENCAGE_API_KEY)
 
 loc = get_geolocation()
+
 with st.sidebar:
     if st.button("Refresh"):
         st.rerun()
@@ -132,19 +135,13 @@ with st.sidebar.form(key="my_form"):
     zipcode = st.text_input("Zipcode (County FIPS)", max_chars=5)
 
     # Conditional fields based on role
-#    if role == "Lender :hammer_and_pick:":
-#        item = st.text_input("Item to Register")
-#        image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])
-#    else:
-#        item = None
-#        image_file = None
-
-    # Conditional fields based on role
     if role == "Renter :open_hands:":
         item = None
         image_file = None
+        category = None
     else:
         item = st.text_input("Item to Register")
+        category = st.selectbox("Category", ["Power Tools", "Manual Tools", "Gardening Tools", "Other"])
         image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])
 
     st.markdown(
@@ -175,7 +172,7 @@ if pressed:
                 with open(image_path, "wb") as f:
                     f.write(image_file.read())
                 
-                save_lender(username, zipcode, item, image_path)
+                save_lender(username, zipcode, item, category, image_path)
                 st.success("Item successfully registered.")
             else:
                 st.error("Please fill in all fields and upload an image.")
@@ -187,18 +184,24 @@ if pressed:
         st.error("Please fill in all required fields.")
 
 st.header("Search for Items")
-search_option = st.selectbox("Search by", ("Item", "Zipcode"))
+search_option = st.selectbox("Search by", ("Item", "Zipcode", "Category"))
 search_term = st.text_input(f"Search {search_option}")
+
+if search_option == "Category":
+    category = st.selectbox("Select Category", ["All"] + ["Power Tools", "Manual Tools", "Gardening Tools", "Other"])
+else:
+    category = None
 
 if st.button("Search"):
     search_by = search_option.lower()
-    results = search_items(search_by, search_term)
+    results = search_items(search_by, search_term, category if category != "All" else None)
     if results:
         for result in results:
             st.image(result['image_path'], use_column_width=True)
             st.write(f"**Username:** {result['username']}")
             st.write(f"**Zipcode:** {result['zipcode']}")
             st.write(f"**Item:** {result['item']}")
+            st.write(f"**Phone:** {result['phone']}")
             st.write("---")
     else:
         st.write("No results found.")

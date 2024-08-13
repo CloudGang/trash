@@ -71,37 +71,38 @@ def search_items(search_by, search_term):
     if search_by == 'item':
         for lender in data['lenders']:
             for item in lender['items']:
-                if search_term in item['item'].lower():
+                if search_term in item.get('item', '').lower():
                     results.append({
                         'username': lender['username'],
-                        'zipcode': item['zipcode'],
-                        'item': item['item'],
-                        'image_path': item['image_path'],
-                        'phone': item['phone']
+                        'zipcode': item.get('zipcode', ''),
+                        'item': item.get('item', ''),
+                        'image_path': item.get('image_path', ''),
+                        'phone': item.get('phone', '')
                     })
     elif search_by == 'zipcode':
         for lender in data['lenders']:
             for item in lender['items']:
-                if search_term in item['zipcode']:
+                if search_term in item.get('zipcode', ''):
                     results.append({
                         'username': lender['username'],
-                        'zipcode': item['zipcode'],
-                        'item': item['item'],
-                        'image_path': item['image_path'],
-                        'phone': item['phone']
+                        'zipcode': item.get('zipcode', ''),
+                        'item': item.get('item', ''),
+                        'image_path': item.get('image_path', ''),
+                        'phone': item.get('phone', '')
                     })
     elif search_by == 'category':
         for lender in data['lenders']:
             for item in lender['items']:
-                if search_term == item['category'].lower():
+                if search_term == item.get('category', '').lower():
                     results.append({
                         'username': lender['username'],
-                        'zipcode': item['zipcode'],
-                        'item': item['item'],
-                        'image_path': item['image_path'],
-                        'phone': item['phone']
+                        'zipcode': item.get('zipcode', ''),
+                        'item': item.get('item', ''),
+                        'image_path': item.get('image_path', ''),
+                        'phone': item.get('phone', '')
                     })
     return results
+
 
 def get_city_data(zipcode):
     """Get city data based on zipcode."""

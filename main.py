@@ -119,7 +119,9 @@ loc = get_geolocation()
 with st.sidebar.form(key="my_form"):
     # Radio button for role selection
     role = st.radio("I am a", ["Renter :open_hands:", "Lender :hammer_and_pick:"])
-    
+    refr = st.button("Refresh")
+    if refr:
+        st.rerun()
     # User input fields
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")

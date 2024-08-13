@@ -10,7 +10,8 @@ data_file_path = 'data.json'
 
 # In-memory data storage
 data = {
-    'users': []
+    'renters': [],
+    'lenders': []
 }
 
 def load_data():
@@ -27,18 +28,62 @@ def save_data_to_file():
     with open(data_file_path, 'w') as f:
         json.dump(data, f, indent=4)
 
-def save_user(username, password, city, state, email, phone, zipcode):
-    """Save user data to the in-memory data structure and file."""
-    data['users'].append({
+def save_renter(username, zipcode):
+    """Save renter data to the in-memory data structure and file."""
+    data['renters'].append({
         'username': username,
-        'password': password,
-        'city': city,
-        'state': state,
-        'email': email,
-        'phone': phone,
         'zipcode': zipcode
     })
     save_data_to_file()
+
+def save_lender(username, zipcode, item, image_path):
+    """Save lender data and item to the in-memory data structure and file."""
+    lender = next((l for l in data['lenders'] if l['username'] == username), None)
+    if lender:
+        if len(lender['items']) >= 5:
+            st.error("You can only register up to 5 items.")
+            return
+        lender['items'].append({
+            'zipcode': zipcode,
+            'item': item,
+            'image_path': image_path
+        })
+    else:
+        data['lenders'].append({
+            'username': username,
+            'items': [{
+                'zipcode': zipcode,
+                'item': item,
+                'image_path': image_path
+            }]
+        })
+    save_data_to_file()
+
+def search_items(search_by, search_term):
+    """Search items in the in-memory data structure by item or zipcode."""
+    search_term = search_term.lower()
+    results = []
+    if search_by == 'item':
+        for lender in data['lenders']:
+            for item in lender['items']:
+                if search_term in item['item'].lower():
+                    results.append({
+                        'username': lender['username'],
+                        'zipcode': item['zipcode'],
+                        'item': item['item'],
+                        'image_path': item['image_path']
+                    })
+    elif search_by == 'zipcode':
+        for lender in data['lenders']:
+            for item in lender['items']:
+                if search_term in item['zipcode']:
+                    results.append({
+                        'username': lender['username'],
+                        'zipcode': item['zipcode'],
+                        'item': item['item'],
+                        'image_path': item['image_path']
+                    })
+    return results
 
 def get_city_data(zipcode):
     """Get city data based on zipcode."""
@@ -72,6 +117,9 @@ geocoder = OpenCageGeocode(OPENCAGE_API_KEY)
 loc = get_geolocation()
 
 with st.sidebar.form(key="my_form"):
+    # Radio button for role selection
+    role = st.radio("I am a", ["Lender :hammer_and_pick:", "Renter :open_hands:"])
+    
     # User input fields
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
@@ -80,7 +128,14 @@ with st.sidebar.form(key="my_form"):
     city = st.text_input("City")
     state = st.text_input("State")
     zipcode = st.text_input("Zipcode (County FIPS)", max_chars=5)
-    
+
+    if role == "Lender :hammer_and_pick:":
+        item = st.text_input("Item to Register")
+        image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])
+    else:
+        item = None
+        image_file = None
+
     st.markdown(
         '<p class="small-font">Results Limited to 15 miles</p>',
         unsafe_allow_html=True,
@@ -99,23 +154,39 @@ To be updated
 )
 
 if pressed:
-    if username and password and city and state and email and phone and zipcode:
-        # Save data
-        save_user(username, password, city, state, email, phone, zipcode)
-        st.success("Data successfully added.")
-
-    # Show user input city on the map
-    if zipcode:
-        city_data = get_city_data(zipcode)
-        if not city_data.empty:
-            latitude = city_data.iloc[0]['lat']
-            longitude = city_data.iloc[0]['lng']
-            st.map(pd.DataFrame([[latitude, longitude]], columns=['lat', 'lon']))
+    if username and zipcode:
+        if role == "Lender :hammer_and_pick:":
+            if item and image_file:
+                # Save image file
+                image_path = f"images/{username}_{item.replace(' ', '_')}.png"
+                if not os.path.exists('images'):
+                    os.makedirs('images')
+                with open(image_path, "wb") as f:
+                    f.write(image_file.read())
+                
+                save_lender(username, zipcode, item, image_path)
+                st.success("Item successfully registered.")
+            else:
+                st.error("Please fill in all fields and upload an image.")
         else:
-            st.warning("City not found.")
+            save_renter(username, zipcode)
+            st.success("Renter successfully registered.")
+    else:
+        st.error("Please fill in all required fields.")
 
-st.write(
-    """
-    Hope you like the map!
-    """
-)
+st.header("Search for Items")
+search_option = st.selectbox("Search by", ("Item", "Zipcode"))
+search_term = st.text_input(f"Search {search_option}")
+
+if st.button("Search"):
+    search_by = search_option.lower()
+    results = search_items(search_by, search_term)
+    if results:
+        for result in results:
+            st.image(result['image_path'], use_column_width=True)
+            st.write(f"**Username:** {result['username']}")
+            st.write(f"**Zipcode:** {result['zipcode']}")
+            st.write(f"**Item:** {result['item']}")
+            st.write("---")
+    else:
+        st.write("No results found.")

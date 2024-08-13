@@ -1,105 +1,142 @@
 import streamlit as st
 import pandas as pd
-import psycopg2
-from psycopg2 import sql
+import json
+import os
 
-# Database connection parameters
-connection_params = {
-    'dbname': 'defaultdb',
-    'user': 'supreme',
-    'password': '3Do-4GKNMvmv8AUwUCKmXw',
-    'host': 'connectordector-15608.7tt.aws-us-east-1.cockroachlabs.cloud',
-    'port': '26257',
-    'sslmode': 'verify-full'
+# In-memory data storage
+data = {
+    'renters': [],
+    'lenders': []
 }
 
-def connect_db():
-    return psycopg2.connect(**connection_params)
+# File path for storing data
+data_file_path = 'data.json'
 
-def create_tables():
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS renters (
-            id SERIAL PRIMARY KEY,
-            username TEXT,
-            password TEXT,
-            email TEXT,
-            phone TEXT,
-            city TEXT,
-            state TEXT,
-            zipcode TEXT,
-            item TEXT
-        );
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS lenders (
-            id SERIAL PRIMARY KEY,
-            username TEXT,
-            password TEXT,
-            email TEXT,
-            phone TEXT,
-            city TEXT,
-            state TEXT,
-            zipcode TEXT,
-            item TEXT
-        );
-    """)
-    conn.commit()
-    cursor.close()
-    conn.close()
+def load_data():
+    """Load data from a file."""
+    if os.path.exists(data_file_path):
+        with open(data_file_path, 'r') as f:
+            global data
+            data = json.load(f)
+    else:
+        save_data_to_file()
 
-def save_data(role, username, password, email, phone, city, state, zipcode, item):
-    table = 'renters' if role == 'renter' else 'lenders'
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute(sql.SQL("INSERT INTO {} (username, password, email, phone, city, state, zipcode, item) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)").format(sql.Identifier(table)),
-                   [username, password, email, phone, city, state, zipcode, item])
-    conn.commit()
-    cursor.close()
-    conn.close()
+def save_data_to_file():
+    """Save data to a file."""
+    with open(data_file_path, 'w') as f:
+        json.dump(data, f, indent=4)
 
-def search_items(item):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM renters WHERE item ILIKE %s", (f"%{item}%",))
-    renters = cursor.fetchall()
-    cursor.execute("SELECT * FROM lenders WHERE item ILIKE %s", (f"%{item}%",))
-    lenders = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return renters, lenders
+def save_renter(username, zipcode):
+    """Save renter data to the in-memory data structure and file."""
+    data['renters'].append({
+        'username': username,
+        'zipcode': zipcode
+    })
+    save_data_to_file()
 
-# Create the database tables
-create_tables()
+def save_lender(username, zipcode, item, image_path):
+    """Save lender data and item to the in-memory data structure and file."""
+    # Check if the lender already has 5 items
+    lender = next((l for l in data['lenders'] if l['username'] == username), None)
+    if lender:
+        if len(lender['items']) >= 5:
+            st.error("You can only register up to 5 items.")
+            return
+        lender['items'].append({
+            'zipcode': zipcode,
+            'item': item,
+            'image_path': image_path
+        })
+    else:
+        data['lenders'].append({
+            'username': username,
+            'items': [{
+                'zipcode': zipcode,
+                'item': item,
+                'image_path': image_path
+            }]
+        })
+    save_data_to_file()
+
+def search_items(search_by, search_term):
+    """Search items in the in-memory data structure by item or zipcode."""
+    search_term = search_term.lower()
+    results = []
+    if search_by == 'item':
+        for lender in data['lenders']:
+            for item in lender['items']:
+                if search_term in item['item'].lower():
+                    results.append({
+                        'username': lender['username'],
+                        'zipcode': item['zipcode'],
+                        'item': item['item'],
+                        'image_path': item['image_path']
+                    })
+    elif search_by == 'zipcode':
+        for lender in data['lenders']:
+            for item in lender['items']:
+                if search_term in item['zipcode']:
+                    results.append({
+                        'username': lender['username'],
+                        'zipcode': item['zipcode'],
+                        'item': item['item'],
+                        'image_path': item['image_path']
+                    })
+    return results
+
+# Load data at the start
+load_data()
 
 # Streamlit app layout
 st.set_page_config(page_title="Rentable", layout="wide", page_icon="📍")
 
 st.title("Rentable")
 
-role = st.radio("I am a", ("Renter", "Lender"))
+role = st.radio("I am a", ["Lender :hammer_and_pick:", "Renter :open_hands:"])
 username = st.text_input("Username")
-password = st.text_input("Password", type="password")
-email = st.text_input("Email")
-phone = st.text_input("Phone Number")
-city = st.text_input("City")
-state = st.text_input("State")
 zipcode = st.text_input("Zipcode (County FIPS)", max_chars=5)
-item = st.text_input("Item to Rent/Lend")
+
+if role == "Lender :hammer_and_pick:":
+    item = st.text_input("Item to Register")
+    image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])
+else:
+    item = None
+    image_file = None
 
 if st.button("Submit"):
-    if username and password and email and phone and city and state and zipcode and item:
-        save_data(role.lower(), username, password, email, phone, city, state, zipcode, item)
-        st.success("Data successfully added.")
+    if username and zipcode:
+        if role == "Lender :hammer_and_pick:":
+            if item and image_file:
+                # Save image file
+                image_path = f"images/{username}_{item.replace(' ', '_')}.png"
+                if not os.path.exists('images'):
+                    os.makedirs('images')
+                with open(image_path, "wb") as f:
+                    f.write(image_file.read())
+                
+                save_lender(username, zipcode, item, image_path)
+                st.success("Item successfully registered.")
+            else:
+                st.error("Please fill in all fields and upload an image.")
+        else:
+            save_renter(username, zipcode)
+            st.success("Renter successfully registered.")
     else:
-        st.error("Please fill in all fields.")
+        st.error("Please fill in all required fields.")
 
 st.header("Search for Items")
-search_item = st.text_input("Search Item")
+search_option = st.selectbox("Search by", ("Item", "Zipcode"))
+search_term = st.text_input(f"Search {search_option}")
+
 if st.button("Search"):
-    renters, lenders = search_items(search_item)
-    st.subheader("Renters")
-    st.write(pd.DataFrame(renters, columns=["ID", "Username", "Password", "Email", "Phone", "City", "State", "Zipcode", "Item"]))
-    st.subheader("Lenders")
-    st.write(pd.DataFrame(lenders, columns=["ID", "Username", "Password", "Email", "Phone", "City", "State", "Zipcode", "Item"]))
+    search_by = search_option.lower()
+    results = search_items(search_by, search_term)
+    if results:
+        for result in results:
+            st.image(result['image_path'], use_column_width=True)
+            st.write(f"**Username:** {result['username']}")
+            st.write(f"**Zipcode:** {result['zipcode']}")
+            st.write(f"**Item:** {result['item']}")
+            st.write("---")
+    else:
+        st.write("No results found.")

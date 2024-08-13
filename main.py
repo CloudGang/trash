@@ -144,6 +144,7 @@ with st.sidebar.form(key="my_form"):
     else:
         item = st.text_input("Item to Register")
         image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])
+        st.rerun()
 
     st.markdown(
         '<p class="small-font">Results Limited to 15 miles</p>',

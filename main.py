@@ -139,7 +139,7 @@ with st.sidebar:
         st.rerun()
 with st.sidebar.form(key="my_form"):
     # Radio button for role selection
-    role = st.radio("I am a", ["Renter :open_hands:", "Lender :hammer_and_pick:"])
+    role = st.radio("I am a", ["Lender :hammer_and_pick:", "Renter :open_hands:"])
 
     # User input fields
     username = st.text_input("Username")

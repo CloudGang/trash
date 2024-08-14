@@ -151,14 +151,14 @@ with st.sidebar.form(key="my_form"):
     zipcode = st.text_input("Zipcode (County FIPS)", max_chars=5)
 
     # Conditional fields based on role
-    if role == "Renter :open_hands:":
-        item = None
-        category = None
-        image_file = None
-    else:
+    if role == "Lender :hammer_and_pick:":
         item = st.text_input("Item to Register")
         category = st.selectbox("Category", ["Power Tools", "Manual Tools", "Gardening Tools", "Other"])
         image_file = st.file_uploader("Upload Item Image", type=['jpg', 'jpeg', 'png'])
+    else:
+        item = None
+        category = None
+        image_file = None
 
     st.markdown(
         '<p class="small-font">Results Limited to 15 miles</p>',

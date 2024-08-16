@@ -233,6 +233,9 @@ for lender in data['lenders']:
         item_image = item.get('image_path', 'No Image')
         item_zipcode = item.get('zipcode', 'Unknown Zipcode')
         item_phone = item.get('phone', 'No Phone Number Available')
-        st.image(item_image, use_column_width=False)
+        try:
+            st.image(item_image, use_column_width=False)
+        except:
+            pass
         st.write(f"  Item: {item_name}, Zipcode: {item_zipcode}, Phone: {item_phone}")
 

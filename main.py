@@ -82,7 +82,7 @@ def search_items(search_by, search_term):
     elif search_by == 'zipcode':
         for lender in data['lenders']:
             for item in lender['items']:
-                if search_term in item.get('zipcode', ''):
+                if search_term == item.get('zipcode', ''):
                     results.append({
                         'username': lender['username'],
                         'zipcode': item.get('zipcode', ''),
@@ -102,7 +102,6 @@ def search_items(search_by, search_term):
                         'phone': item.get('phone', '')
                     })
     return results
-
 
 def get_city_data(zipcode):
     """Get city data based on zipcode."""

@@ -222,9 +222,15 @@ if st.button("Search"):
 
 st.write("----------------------------------------------------------------------")
 
+st.write("----------------------------------------------------------------------")
+
 # Display the list of lenders and their items
 st.write("Lenders:")
 for lender in data['lenders']:
     st.write(f"Lender: {lender['username']}")
     for item in lender['items']:
-        st.write(f"  Item: {item['item']}, Zipcode: {item['zipcode']}, Phone: {item['phone']}")
+        item_name = item.get('item', 'Unknown Item')
+        item_zipcode = item.get('zipcode', 'Unknown Zipcode')
+        item_phone = item.get('phone', 'No Phone Number Available')
+        st.write(f"  Item: {item_name}, Zipcode: {item_zipcode}, Phone: {item_phone}")
+

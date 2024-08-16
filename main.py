@@ -211,7 +211,7 @@ if st.button("Search"):
     results = search_items(search_by, search_term)
     if results:
         for result in results:
-            st.image(result['image_path'], use_column_width=True)
+            st.image(result['image_path'], use_column_width=False)
             st.write(f"**Username:** {result['username']}")
             st.write(f"**Zipcode:** {result['zipcode']}")
             st.write(f"**Item:** {result['item']}")
@@ -230,7 +230,9 @@ for lender in data['lenders']:
     st.write(f"Lender: {lender['username']}")
     for item in lender['items']:
         item_name = item.get('item', 'Unknown Item')
+        item_image = item.get('image_path', 'No Image')
         item_zipcode = item.get('zipcode', 'Unknown Zipcode')
         item_phone = item.get('phone', 'No Phone Number Available')
+        st.image(item_image, use_column_width=False)
         st.write(f"  Item: {item_name}, Zipcode: {item_zipcode}, Phone: {item_phone}")
 

@@ -235,4 +235,4 @@ st.write("Lenders:")
 for lender in data['lenders']:
     st.write(f"Lender: {lender['username']}")
     for item in lender['items']:
-        st.write(f"  Item: {item['item']}, Zipcode: {item['zipcode']}
+        st.write(f"  Item: {item['item']}, Zipcode: {item['zipcode']}")

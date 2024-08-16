@@ -222,17 +222,10 @@ if st.button("Search"):
         st.write("Item Not Found")
 
 st.write("----------------------------------------------------------------------")
-# Display the entire data structure on the app
-st.write("In-Memory Data:", data)
-
-# Display the list of renters
-st.write("Renters:")
-for renter in data['renters']:
-    st.write(renter)
 
 # Display the list of lenders and their items
 st.write("Lenders:")
 for lender in data['lenders']:
     st.write(f"Lender: {lender['username']}")
     for item in lender['items']:
-        st.write(f"  Item: {item['item']}, Zipcode: {item['zipcode']}")
+        st.write(f"  Item: {item['item']}, Zipcode: {item['zipcode']}, Phone: {item['phone']}")

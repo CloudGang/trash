@@ -159,7 +159,7 @@ with st.sidebar:
         if logout_button:
             st.session_state['user_logged_in'] = False
             st.session_state['current_user'] = {}
-            st.experimental_rerun()
+            st.rerun()
 
 # Media Upload Section
 st.subheader("Upload Media")

@@ -100,17 +100,17 @@ st.markdown(
 
 st.title("🎵 Music Sharing Platform")
 
-if uploaded_file:
-    file_type = uploaded_file.type.split('/')[0]  # This will be 'audio' or 'video'
-    file_name = uploaded_file.name
-    file_path = f"uploads/{username}_{file_name}"
+if media_file:
+    file_type = media_file.type.split('/')[0]  # This will be 'audio' or 'video'
+    file_name = media_file.name
+    file_path = f"uploads/{st.session_state['current_user']['username']}_{file_name}"
     
     # Save the file
     with open(file_path, "wb") as f:
-        f.write(uploaded_file.read())
+        f.write(media_file.read())
     
     # Save the upload data
-    save_upload(username, file_name, file_path, file_type)
+    save_upload(st.session_state['current_user']['username'], file_name, file_path, file_type)
     
     st.success("Upload successful.")
     

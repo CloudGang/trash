@@ -16,6 +16,11 @@ data = {
     'uploads': []
 }
 
+def get_recently_uploaded_media(n=5):
+    """Get the last n recently uploaded media."""
+    uploads = data.get('uploads', [])
+    return uploads[-n:] if uploads else []
+
 def load_data():
     """Load data from a file."""
     if os.path.exists(data_file_path):
@@ -81,6 +86,23 @@ st.markdown(
 )
 
 st.title("🎵 Music Sharing Platform")
+
+# Display the last 5 recently uploaded media
+st.header("Recently Uploaded Media")
+recent_media = get_recently_uploaded_media()
+
+if recent_media:
+    for media in recent_media:
+        st.write(f"**Uploaded by:** {media['username']}")
+        if media['file_type'] == 'audio':
+            st.audio(media['file_path'])
+        elif media['file_type'] == 'video':
+            st.video(media['file_path'])
+        st.write("---")
+else:
+    st.write("No media uploaded yet.")
+    for _ in range(5):
+        st.empty()  # Placeholder
 
 # Sidebar for Registration or User Profile
 with st.sidebar:

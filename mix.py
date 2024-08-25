@@ -1,11 +1,15 @@
 import streamlit as st
-import pandas as pd
 import json
 import os
 
 # File path for storing data
 data_file_path = 'data.json'
 
+# Initialize session state
+if 'user_logged_in' not in st.session_state:
+    st.session_state['user_logged_in'] = False
+    st.session_state['current_user'] = {}
+    
 # In-memory data storage
 data = {
     'users': [],
@@ -50,34 +54,19 @@ def search_media(search_by, search_term):
     """Search media in the in-memory data structure by username or media name."""
     search_term = search_term.lower()
     results = []
-    if search_by == 'username':
-        for upload in data['uploads']:
-            if search_term in upload.get('username', '').lower():
-                user_info = next((user for user in data['users'] if user['username'] == upload['username']), None)
-                results.append({
-                    'username': upload['username'],
-                    'media_name': upload['media_name'],
-                    'media_type': upload['media_type'],
-                    'media_path': upload['media_path'],
-                    'avatar_path': user_info.get('avatar_path', '') if user_info else ''
-                })
-    elif search_by == 'media_name':
-        for upload in data['uploads']:
-            if search_term in upload.get('media_name', '').lower():
-                user_info = next((user for user in data['users'] if user['username'] == upload['username']), None)
-                results.append({
-                    'username': upload['username'],
-                    'media_name': upload['media_name'],
-                    'media_type': upload['media_type'],
-                    'media_path': upload['media_path'],
-                    'avatar_path': user_info.get('avatar_path', '') if user_info else ''
-                })
+    for upload in data['uploads']:
+        if search_by == 'username' and search_term in upload.get('username', '').lower():
+            user_info = next((user for user in data['users'] if user['username'].lower() == upload['username'].lower()), {})
+            results.append({**upload, **{'avatar_path': user_info.get('avatar_path')}})
+        elif search_by == 'media_name' and search_term in upload.get('media_name', '').lower():
+            user_info = next((user for user in data['users'] if user['username'].lower() == upload['username'].lower()), {})
+            results.append({**upload, **{'avatar_path': user_info.get('avatar_path')}})
     return results
 
 # Load data at the start
 load_data()
 
-st.set_page_config(page_title="Music Sharing", layout="wide", page_icon="🎵")
+st.set_page_config(page_title="Music Sharing Platform", layout="wide", page_icon="🎵")
 st.markdown(
     """
     <style>
@@ -91,65 +80,107 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Music Sharing Platform")
+st.title("🎵 Music Sharing Platform")
 
-with st.sidebar.form(key="registration_form"):
-    st.header("Register")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    email = st.text_input("Email")
-    avatar = st.file_uploader("Upload Avatar", type=['jpg', 'jpeg', 'png'])
-    
-    if st.form_submit_button("Register"):
-        if username and password and email:
-            avatar_path = None
-            if avatar:
-                avatar_path = f"avatars/{username}_avatar.png"
-                if not os.path.exists('avatars'):
-                    os.makedirs('avatars')
-                with open(avatar_path, "wb") as f:
-                    f.write(avatar.read())
-            save_user(username, password, email, avatar_path)
-            st.success("Registration successful.")
-        else:
-            st.error("Please fill in all required fields.")
+# Sidebar for Registration or User Profile
+with st.sidebar:
+    if not st.session_state['user_logged_in']:
+        st.header("Register")
+        with st.form(key="registration_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            email = st.text_input("Email")
+            avatar = st.file_uploader("Upload Avatar", type=['jpg', 'jpeg', 'png'])
+            
+            submit_button = st.form_submit_button("Register")
+            
+            if submit_button:
+                if username and password and email:
+                    # Check if username already exists
+                    if any(user['username'].lower() == username.lower() for user in data['users']):
+                        st.error("Username already exists. Please choose a different username.")
+                    else:
+                        avatar_path = None
+                        if avatar:
+                            avatar_dir = 'avatars'
+                            os.makedirs(avatar_dir, exist_ok=True)
+                            avatar_path = os.path.join(avatar_dir, f"{username}_avatar.png")
+                            with open(avatar_path, "wb") as f:
+                                f.write(avatar.read())
+                        save_user(username, password, email, avatar_path)
+                        st.session_state['user_logged_in'] = True
+                        st.session_state['current_user'] = {
+                            'username': username,
+                            'email': email,
+                            'avatar_path': avatar_path
+                        }
+                        st.success("Registration successful.")
+                else:
+                    st.error("Please fill in all required fields.")
+    else:
+        st.header("Profile")
+        user_info = st.session_state['current_user']
+        if user_info.get('avatar_path'):
+            st.image(user_info['avatar_path'], width=150)
+        st.write(f"**Username:** {user_info['username']}")
+        st.write(f"**Email:** {user_info['email']}")
+        logout_button = st.button("Logout")
+        if logout_button:
+            st.session_state['user_logged_in'] = False
+            st.session_state['current_user'] = {}
+            st.experimental_rerun()
 
-with st.sidebar.form(key="upload_form"):
-    st.header("Upload Media")
-    username = st.text_input("Username (for Upload)")
-    media_name = st.text_input("Media Name")
-    media_type = st.selectbox("Media Type", ["Audio", "Video"])
-    media_file = st.file_uploader("Upload Media", type=['mp3', 'mp4', 'wav'])
-    
-    if st.form_submit_button("Upload"):
-        if username and media_name and media_type and media_file:
-            media_path = f"uploads/{username}_{media_name.replace(' ', '_')}.{media_file.name.split('.')[-1]}"
-            if not os.path.exists('uploads'):
-                os.makedirs('uploads')
-            with open(media_path, "wb") as f:
-                f.write(media_file.read())
-            save_media(username, media_name, media_type, media_path)
-            st.success("Media successfully uploaded.")
-        else:
-            st.error("Please fill in all required fields.")
+# Media Upload Section
+st.subheader("Upload Media")
+if st.session_state['user_logged_in']:
+    with st.form(key="upload_form"):
+        media_name = st.text_input("Media Name")
+        media_type = st.selectbox("Media Type", ["Audio", "Video"])
+        media_file = st.file_uploader("Upload Media", type=['mp3', 'mp4', 'wav', 'mkv', 'mov'])
+        
+        upload_button = st.form_submit_button("Upload")
+        
+        if upload_button:
+            if media_name and media_file:
+                media_dir = 'uploads'
+                os.makedirs(media_dir, exist_ok=True)
+                file_extension = media_file.name.split('.')[-1]
+                media_path = os.path.join(media_dir, f"{st.session_state['current_user']['username']}_{media_name.replace(' ', '_')}.{file_extension}")
+                with open(media_path, "wb") as f:
+                    f.write(media_file.read())
+                save_media(st.session_state['current_user']['username'], media_name, media_type, media_path)
+                st.success("Media successfully uploaded.")
+            else:
+                st.error("Please provide a media name and upload a file.")
+else:
+    st.info("Please register or log in to upload media.")
 
-st.header("Search Media")
+# Media Search Section
+st.subheader("Search Media")
 search_option = st.selectbox("Search by", ["Username", "Media Name"])
-search_term = st.text_input(f"Search {search_option}")
+search_term = st.text_input(f"Enter {search_option}")
 
 if st.button("Search"):
-    search_by = search_option.lower().replace(' ', '_')
-    results = search_media(search_by, search_term)
-    if results:
-        for result in results:
-            if result['avatar_path']:
-                st.image(result['avatar_path'], width=100)
-            st.write(f"**Username:** {result['username']}")
-            st.write(f"**Media Name:** {result['media_name']}")
-            if result['media_type'] == "Audio":
-                st.audio(result['media_path'])
-            elif result['media_type'] == "Video":
-                st.video(result['media_path'])
-            st.write("---")
+    if search_term:
+        search_by = search_option.lower().replace(' ', '_')
+        results = search_media(search_by, search_term)
+        if results:
+            for result in results:
+                col1, col2 = st.columns([1, 3])
+                with col1:
+                    if result.get('avatar_path'):
+                        st.image(result['avatar_path'], width=100)
+                    else:
+                        st.image("https://via.placeholder.com/100", width=100)
+                    st.write(f"**Username:** {result['username']}")
+                with col2:
+                    st.write(f"**Media Name:** {result['media_name']}")
+                    if result['media_type'] == "Audio":
+                        st.audio(result['media_path'])
+                    elif result['media_type'] == "Video":
+                        st.video(result['media_path'])
+                st.markdown("---")
+        else:
+            st.warning("No results found.")
     else:
-        st.write("No results found.")
+        st.error("Please enter a search term.")

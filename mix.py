@@ -100,7 +100,7 @@ recent_media = get_recently_uploaded_media(3)
 
 if recent_media:
     for media in recent_media:
-        st.write(f"**Uploaded by:** {media['username']}")
+        st.write(f"**Title:** {media['media_name']}")
         
         if 'media_type' in media and os.path.exists(media['media_path']):
             if media['media_type'].lower() == 'audio':

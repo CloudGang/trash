@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import json
 import os
 
@@ -18,6 +17,9 @@ def load_data():
         with open(data_file_path, 'r') as f:
             global data
             data = json.load(f)
+        # Ensure 'uploads' key exists
+        if 'uploads' not in data:
+            data['uploads'] = []
     else:
         save_data_to_file()
 
@@ -151,13 +153,16 @@ st.write("----------------------------------------------------------------------
 
 # Display the list of uploaded media
 st.write("Uploaded Media:")
-for upload in data['uploads']:
-    st.write(f"**Title:** {upload['title']}")
-    st.write(f"**Uploaded by:** {upload['username']}")
-    st.write(f"**Description:** {upload['description']}")
-    st.write(f"**Media Type:** {upload['media_type']}")
-    if upload['media_type'] == "Audio":
-        st.audio(upload['file_path'])
-    else:
-        st.video(upload['file_path'])
-    st.write("----------------------------------------------------------------------")
+if 'uploads' in data:
+    for upload in data['uploads']:
+        st.write(f"**Title:** {upload['title']}")
+        st.write(f"**Uploaded by:** {upload['username']}")
+        st.write(f"**Description:** {upload['description']}")
+        st.write(f"**Media Type:** {upload['media_type']}")
+        if upload['media_type'] == "Audio":
+            st.audio(upload['file_path'])
+        else:
+            st.video(upload['file_path'])
+        st.write("----------------------------------------------------------------------")
+else:
+    st.write("No media files have been uploaded yet.")

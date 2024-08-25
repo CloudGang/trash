@@ -68,19 +68,6 @@ def search_media(search_by, search_term):
             results.append({**upload, **{'avatar_path': user_info.get('avatar_path')}})
     return results
     
-def save_upload(username, file_name, file_path, file_type):
-    """Save uploaded media to the in-memory data structure and file."""
-    if 'uploads' not in data:
-        data['uploads'] = []
-    
-    data['uploads'].append({
-        'username': username,
-        'file_name': file_name,
-        'file_path': file_path,
-        'file_type': file_type,
-    })
-    save_data_to_file()
-    
 # Load data at the start
 load_data()
 
@@ -100,20 +87,6 @@ st.markdown(
 
 st.title("🎵 Music Sharing Platform")
 
-if media_file:
-    file_type = media_file.type.split('/')[0]  # This will be 'audio' or 'video'
-    file_name = media_file.name
-    file_path = f"uploads/{st.session_state['current_user']['username']}_{file_name}"
-    
-    # Save the file
-    with open(file_path, "wb") as f:
-        f.write(media_file.read())
-    
-    # Save the upload data
-    save_upload(st.session_state['current_user']['username'], file_name, file_path, file_type)
-    
-    st.success("Upload successful.")
-    
 # Display the last 5 recently uploaded media
 st.header("Recently Uploaded Media")
 recent_media = get_recently_uploaded_media()
@@ -122,13 +95,13 @@ if recent_media:
     for media in recent_media:
         st.write(f"**Uploaded by:** {media['username']}")
         
-        if 'file_type' in media and os.path.exists(media['file_path']):
-            if media['file_type'] == 'audio':
-                st.audio(media['file_path'])
-            elif media['file_type'] == 'video':
-                st.video(media['file_path'])
+        if 'media_type' in media and os.path.exists(media['media_path']):
+            if media['media_type'] == 'audio':
+                st.audio(media['media_path'])
+            elif media['media_type'] == 'video':
+                st.video(media['media_path'])
             else:
-                st.warning(f"Unknown media type: {media['file_type']}")
+                st.warning(f"Unknown media type: {media['media_type']}")
         else:
             st.error("Media file is missing or not found.")
         

@@ -103,9 +103,9 @@ if recent_media:
         st.write(f"**Uploaded by:** {media['username']}")
         
         if 'media_type' in media and os.path.exists(media['media_path']):
-            if media['media_type'] == 'audio':
+            if media['media_type'].lower() == 'audio':
                 st.audio(media['media_path'])
-            elif media['media_type'] == 'video':
+            elif media['media_type'].lower() == 'video':
                 st.video(media['media_path'])
             else:
                 st.warning(f"Unknown media type: {media['media_type']}")
@@ -115,8 +115,7 @@ if recent_media:
         st.write("---")
 else:
     st.write("No media uploaded yet.")
-    for _ in range(3):
-        st.empty()  # Placeholder
+    st.empty()  # Placeholder for consistency with the design
 
 # Sidebar for Registration, Login, or User Profile
 with st.sidebar:

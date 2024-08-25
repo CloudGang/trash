@@ -96,7 +96,7 @@ st.title("🎵 Music Sharing Platform")
 
 # Display the last 3 recently uploaded media
 st.header("Recently Uploaded Media")
-recent_media = get_recently_uploaded_media()
+recent_media = get_recently_uploaded_media(3)
 
 if recent_media:
     for media in recent_media:

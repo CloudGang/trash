@@ -9,14 +9,14 @@ data_file_path = 'data.json'
 if 'user_logged_in' not in st.session_state:
     st.session_state['user_logged_in'] = False
     st.session_state['current_user'] = {}
-    
+
 # In-memory data storage
 data = {
     'users': [],
     'uploads': []
 }
 
-def get_recently_uploaded_media(n=5):
+def get_recently_uploaded_media(n=3):
     """Get the last n recently uploaded media."""
     uploads = data.get('uploads', [])
     return uploads[-n:] if uploads else []
@@ -67,7 +67,14 @@ def search_media(search_by, search_term):
             user_info = next((user for user in data['users'] if user['username'].lower() == upload['username'].lower()), {})
             results.append({**upload, **{'avatar_path': user_info.get('avatar_path')}})
     return results
-    
+
+def authenticate_user(username, password):
+    """Authenticate user login based on username and password."""
+    for user in data['users']:
+        if user['username'].lower() == username.lower() and user['password'] == password:
+            return user
+    return None
+
 # Load data at the start
 load_data()
 
@@ -87,7 +94,7 @@ st.markdown(
 
 st.title("🎵 Music Sharing Platform")
 
-# Display the last 5 recently uploaded media
+# Display the last 3 recently uploaded media
 st.header("Recently Uploaded Media")
 recent_media = get_recently_uploaded_media()
 
@@ -108,10 +115,10 @@ if recent_media:
         st.write("---")
 else:
     st.write("No media uploaded yet.")
-    for _ in range(5):
+    for _ in range(3):
         st.empty()  # Placeholder
 
-# Sidebar for Registration or User Profile
+# Sidebar for Registration, Login, or User Profile
 with st.sidebar:
     if not st.session_state['user_logged_in']:
         st.header("Register")
@@ -147,6 +154,22 @@ with st.sidebar:
                         st.experimental_rerun()
                 else:
                     st.error("Please fill in all required fields.")
+        
+        st.header("Login")
+        with st.form(key="login_form"):
+            login_username = st.text_input("Username", key="login_username")
+            login_password = st.text_input("Password", type="password", key="login_password")
+            login_button = st.form_submit_button("Login")
+            
+            if login_button:
+                user = authenticate_user(login_username, login_password)
+                if user:
+                    st.session_state['user_logged_in'] = True
+                    st.session_state['current_user'] = user
+                    st.success("Login successful.")
+                    st.experimental_rerun()
+                else:
+                    st.error("Invalid username or password.")
                 
     else:
         st.header("Profile")
@@ -159,7 +182,7 @@ with st.sidebar:
         if logout_button:
             st.session_state['user_logged_in'] = False
             st.session_state['current_user'] = {}
-            st.rerun()
+            st.experimental_rerun()
 
 # Media Upload Section
 st.subheader("Upload Media")

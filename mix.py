@@ -94,25 +94,27 @@ st.markdown(
 
 st.title("🎵 Music Sharing Platform")
 
-# Display the last 3 recently uploaded media
+# Display the last 3 recently uploaded media in a row with 3 columns
 st.header("Recently Uploaded Media")
 recent_media = get_recently_uploaded_media(3)
 
 if recent_media:
-    for media in recent_media:
-        st.write(f"**Title:** {media['media_name']}")
-        
-        if 'media_type' in media and os.path.exists(media['media_path']):
-            if media['media_type'].lower() == 'audio':
-                st.audio(media['media_path'])
-            elif media['media_type'].lower() == 'video':
-                st.video(media['media_path'])
+    cols = st.columns(3)
+    for index, media in enumerate(recent_media):
+        with cols[index]:
+            st.write(f"**Title:** {media['media_name']}")
+            st.write(f"**Uploaded by:** {media['username']}")
+            
+            if 'media_type' in media and os.path.exists(media['media_path']):
+                if media['media_type'].lower() == 'audio':
+                    st.audio(media['media_path'])
+                elif media['media_type'].lower() == 'video':
+                    st.video(media['media_path'])
+                else:
+                    st.warning(f"Unknown media type: {media['media_type']}")
             else:
-                st.warning(f"Unknown media type: {media['media_type']}")
-        else:
-            st.error("Media file is missing or not found.")
-        
-        st.write("---")
+                st.error("Media file is missing or not found.")
+            st.write("---")
 else:
     st.write("No media uploaded yet.")
     st.empty()  # Placeholder for consistency with the design

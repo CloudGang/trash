@@ -144,8 +144,10 @@ with st.sidebar:
                             'avatar_path': avatar_path
                         }
                         st.success("Registration successful.")
+                        st.experimental_rerun()
                 else:
                     st.error("Please fill in all required fields.")
+                
     else:
         st.header("Profile")
         user_info = st.session_state['current_user']

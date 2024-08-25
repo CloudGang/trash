@@ -185,31 +185,6 @@ with st.sidebar:
             st.session_state['current_user'] = {}
             st.experimental_rerun()
 
-# Media Upload Section
-st.subheader("Upload Media")
-if st.session_state['user_logged_in']:
-    with st.form(key="upload_form"):
-        media_name = st.text_input("Media Name")
-        media_type = st.selectbox("Media Type", ["Audio", "Video"])
-        media_file = st.file_uploader("Upload Media", type=['mp3', 'mp4', 'wav', 'mkv', 'mov'])
-        
-        upload_button = st.form_submit_button("Upload")
-        
-        if upload_button:
-            if media_name and media_file:
-                media_dir = 'uploads'
-                os.makedirs(media_dir, exist_ok=True)
-                file_extension = media_file.name.split('.')[-1]
-                media_path = os.path.join(media_dir, f"{st.session_state['current_user']['username']}_{media_name.replace(' ', '_')}.{file_extension}")
-                with open(media_path, "wb") as f:
-                    f.write(media_file.read())
-                save_media(st.session_state['current_user']['username'], media_name, media_type, media_path)
-                st.success("Media successfully uploaded.")
-            else:
-                st.error("Please provide a media name and upload a file.")
-else:
-    st.info("Please register or log in to upload media.")
-
 # Media Search Section
 st.subheader("Search Media")
 search_option = st.selectbox("Search by", ["Username", "Media Name"])
@@ -239,3 +214,29 @@ if st.button("Search"):
             st.warning("No results found.")
     else:
         st.error("Please enter a search term.")
+
+# Media Upload Section
+st.subheader("Upload Media")
+if st.session_state['user_logged_in']:
+    with st.form(key="upload_form"):
+        media_name = st.text_input("Media Name")
+        media_type = st.selectbox("Media Type", ["Audio", "Video"])
+        media_file = st.file_uploader("Upload Media", type=['mp3', 'mp4', 'wav', 'mkv', 'mov'])
+        
+        upload_button = st.form_submit_button("Upload")
+        
+        if upload_button:
+            if media_name and media_file:
+                media_dir = 'uploads'
+                os.makedirs(media_dir, exist_ok=True)
+                file_extension = media_file.name.split('.')[-1]
+                media_path = os.path.join(media_dir, f"{st.session_state['current_user']['username']}_{media_name.replace(' ', '_')}.{file_extension}")
+                with open(media_path, "wb") as f:
+                    f.write(media_file.read())
+                save_media(st.session_state['current_user']['username'], media_name, media_type, media_path)
+                st.success("Media successfully uploaded.")
+            else:
+                st.error("Please provide a media name and upload a file.")
+else:
+    st.info("Please register or log in to upload media.")
+

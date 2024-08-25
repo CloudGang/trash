@@ -151,7 +151,7 @@ with st.sidebar:
                             'avatar_path': avatar_path
                         }
                         st.success("Registration successful.")
-                        st.experimental_rerun()
+                        st.rerun()
                 else:
                     st.error("Please fill in all required fields.")
         

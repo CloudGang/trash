@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import json
 import os
 
@@ -17,9 +18,6 @@ def load_data():
         with open(data_file_path, 'r') as f:
             global data
             data = json.load(f)
-        # Ensure 'uploads' key exists
-        if 'uploads' not in data:
-            data['uploads'] = []
     else:
         save_data_to_file()
 
@@ -28,41 +26,52 @@ def save_data_to_file():
     with open(data_file_path, 'w') as f:
         json.dump(data, f, indent=4)
 
-def save_user(username, email, phone, city, state, zipcode):
+def save_user(username, password, email, avatar_path=None):
     """Save user data to the in-memory data structure and file."""
     data['users'].append({
         'username': username,
+        'password': password,
         'email': email,
-        'phone': phone,
-        'city': city,
-        'state': state,
-        'zipcode': zipcode
+        'avatar_path': avatar_path
     })
     save_data_to_file()
 
-def save_upload(username, title, media_type, file_path, description):
-    """Save uploaded media to the in-memory data structure and file."""
+def save_media(username, media_name, media_type, media_path):
+    """Save media data to the in-memory data structure and file."""
     data['uploads'].append({
         'username': username,
-        'title': title,
+        'media_name': media_name,
         'media_type': media_type,
-        'file_path': file_path,
-        'description': description
+        'media_path': media_path
     })
     save_data_to_file()
 
-def search_uploads(search_by, search_term):
-    """Search uploads in the in-memory data structure by title or username."""
+def search_media(search_by, search_term):
+    """Search media in the in-memory data structure by username or media name."""
     search_term = search_term.lower()
     results = []
-    if search_by == 'title':
+    if search_by == 'username':
         for upload in data['uploads']:
-            if search_term in upload.get('title', '').lower():
-                results.append(upload)
-    elif search_by == 'username':
+            if search_term in upload.get('username', '').lower():
+                user_info = next((user for user in data['users'] if user['username'] == upload['username']), None)
+                results.append({
+                    'username': upload['username'],
+                    'media_name': upload['media_name'],
+                    'media_type': upload['media_type'],
+                    'media_path': upload['media_path'],
+                    'avatar_path': user_info.get('avatar_path', '') if user_info else ''
+                })
+    elif search_by == 'media_name':
         for upload in data['uploads']:
-            if search_term == upload.get('username', '').lower():
-                results.append(upload)
+            if search_term in upload.get('media_name', '').lower():
+                user_info = next((user for user in data['users'] if user['username'] == upload['username']), None)
+                results.append({
+                    'username': upload['username'],
+                    'media_name': upload['media_name'],
+                    'media_type': upload['media_type'],
+                    'media_path': upload['media_path'],
+                    'avatar_path': user_info.get('avatar_path', '') if user_info else ''
+                })
     return results
 
 # Load data at the start
@@ -82,87 +91,65 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Music Sharing")
+st.title("Music Sharing Platform")
 
-with st.sidebar.form(key="user_form"):
-    # User input fields
+with st.sidebar.form(key="registration_form"):
+    st.header("Register")
     username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
     email = st.text_input("Email")
-    phone = st.text_input("Phone Number")
-    city = st.text_input("City")
-    state = st.text_input("State")
-    zipcode = st.text_input("Zipcode (County FIPS)", max_chars=5)
-
-    st.markdown(
-        '<p class="small-font">Please provide your location details.</p>',
-        unsafe_allow_html=True,
-    )
+    avatar = st.file_uploader("Upload Avatar", type=['jpg', 'jpeg', 'png'])
     
     if st.form_submit_button("Register"):
-        if username and zipcode:
-            save_user(username, email, phone, city, state, zipcode)
-            st.success("User successfully registered.")
+        if username and password and email:
+            avatar_path = None
+            if avatar:
+                avatar_path = f"avatars/{username}_avatar.png"
+                if not os.path.exists('avatars'):
+                    os.makedirs('avatars')
+                with open(avatar_path, "wb") as f:
+                    f.write(avatar.read())
+            save_user(username, password, email, avatar_path)
+            st.success("Registration successful.")
         else:
             st.error("Please fill in all required fields.")
 
 with st.sidebar.form(key="upload_form"):
-    # Upload input fields
-    username = st.text_input("Username")
-    title = st.text_input("Title of the Audio/Video")
+    st.header("Upload Media")
+    username = st.text_input("Username (for Upload)")
+    media_name = st.text_input("Media Name")
     media_type = st.selectbox("Media Type", ["Audio", "Video"])
-    media_file = st.file_uploader(f"Upload {media_type} File", type=['mp3', 'mp4', 'wav', 'mkv'])
-    description = st.text_area("Description")
-
+    media_file = st.file_uploader("Upload Media", type=['mp3', 'mp4', 'wav'])
+    
     if st.form_submit_button("Upload"):
-        if username and title and media_file:
-            # Save media file
-            file_path = f"uploads/{username}_{title.replace(' ', '_')}.{media_file.name.split('.')[-1]}"
+        if username and media_name and media_type and media_file:
+            media_path = f"uploads/{username}_{media_name.replace(' ', '_')}.{media_file.name.split('.')[-1]}"
             if not os.path.exists('uploads'):
                 os.makedirs('uploads')
-            with open(file_path, "wb") as f:
+            with open(media_path, "wb") as f:
                 f.write(media_file.read())
-            
-            save_upload(username, title, media_type, file_path, description)
-            st.success(f"{media_type} successfully uploaded.")
+            save_media(username, media_name, media_type, media_path)
+            st.success("Media successfully uploaded.")
         else:
-            st.error("Please fill in all fields and upload a file.")
+            st.error("Please fill in all required fields.")
 
-st.header("Search for Music")
-search_option = st.selectbox("Search by", ["Title", "Username"])
-
+st.header("Search Media")
+search_option = st.selectbox("Search by", ["Username", "Media Name"])
 search_term = st.text_input(f"Search {search_option}")
 
 if st.button("Search"):
-    search_by = search_option.lower()
-    results = search_uploads(search_by, search_term)
+    search_by = search_option.lower().replace(' ', '_')
+    results = search_media(search_by, search_term)
     if results:
         for result in results:
-            st.write(f"**Title:** {result['title']}")
-            st.write(f"**Uploaded by:** {result['username']}")
-            st.write(f"**Description:** {result['description']}")
-            st.write(f"**Media Type:** {result['media_type']}")
+            if result['avatar_path']:
+                st.image(result['avatar_path'], width=100)
+            st.write(f"**Username:** {result['username']}")
+            st.write(f"**Media Name:** {result['media_name']}")
             if result['media_type'] == "Audio":
-                st.audio(result['file_path'])
-            else:
-                st.video(result['file_path'])
+                st.audio(result['media_path'])
+            elif result['media_type'] == "Video":
+                st.video(result['media_path'])
             st.write("---")
     else:
         st.write("No results found.")
-
-st.write("----------------------------------------------------------------------")
-
-# Display the list of uploaded media
-st.write("Uploaded Media:")
-if 'uploads' in data:
-    for upload in data['uploads']:
-        st.write(f"**Title:** {upload['title']}")
-        st.write(f"**Uploaded by:** {upload['username']}")
-        st.write(f"**Description:** {upload['description']}")
-        st.write(f"**Media Type:** {upload['media_type']}")
-        if upload['media_type'] == "Audio":
-            st.audio(upload['file_path'])
-        else:
-            st.video(upload['file_path'])
-        st.write("----------------------------------------------------------------------")
-else:
-    st.write("No media files have been uploaded yet.")

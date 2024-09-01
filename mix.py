@@ -1,27 +1,20 @@
 import streamlit as st
-from streamlit_ws_localstorage import injectWebsocketCode, getOrCreateUID
 import json
+import uuid
 import os
+from streamlit_ws_localstorage import injectWebsocketCode, getOrCreateUID
 
-# Disable SSL certificate verification
-
-# Main call to the API, returns a communication object
-
+# WebSocket connection to the server
 HOST_PORT = 'wsauthserver.supergroup.ai'
-#HOST_PORT = 'linode.liquidco.in'
 
-conn = injectWebsocketCode(hostPort='HOST_PORT', uid=getOrCreateUID())
+# Create a unique identifier for the user session
+conn = injectWebsocketCode(hostPort=HOST_PORT, uid=str(uuid.uuid1()))
 
 # In-memory data storage
 data = {
     'users': [],
     'uploads': []
 }
-
-def get_recently_uploaded_media(n=3):
-    """Get the last n recently uploaded media."""
-    uploads = data.get('uploads', [])
-    return uploads[-n:] if uploads else []
 
 def load_data():
     """Load data from local storage."""
@@ -38,6 +31,11 @@ def save_data_to_storage():
     """Save data to local storage."""
     conn.setLocalStorageVal('users', json.dumps(data['users']))
     conn.setLocalStorageVal('uploads', json.dumps(data['uploads']))
+
+def get_recently_uploaded_media(n=3):
+    """Get the last n recently uploaded media."""
+    uploads = data.get('uploads', [])
+    return uploads[-n:] if uploads else []
 
 def save_user(username, password, email, avatar_path=None):
     """Save user data to the in-memory data structure and local storage."""
@@ -239,6 +237,7 @@ if user_logged_in:
                 media_path = os.path.join(media_dir, f"{current_user['username']}_{media_name.replace(' ', '_')}.{file_extension}")
                 with open(media_path, "wb") as f:
                     f.write(media_file.read())
+
                 save_media(current_user['username'], media_name, media_type, media_path)
                 st.success("Media uploaded successfully.")
                 st.experimental_rerun()

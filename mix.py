@@ -6,7 +6,11 @@ import os
 # Disable SSL certificate verification
 
 # Main call to the API, returns a communication object
-conn = injectWebsocketCode(hostPort='linode.liquidco.in', uid=getOrCreateUID())
+
+HOST_PORT = 'wsauthserver.supergroup.ai'
+#HOST_PORT = 'linode.liquidco.in'
+
+conn = injectWebsocketCode(hostPort='HOST_PORT', uid=getOrCreateUID())
 
 # In-memory data storage
 data = {

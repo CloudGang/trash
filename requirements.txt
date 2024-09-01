@@ -5,6 +5,7 @@ numpy
 pandas
 plotly
 streamlit
+streamlit-ws-localstorage
 streamlit_js_eval
 psycopg2-binary
 sqlalchemy

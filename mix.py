@@ -172,7 +172,7 @@ with st.sidebar:
                     conn.setLocalStorageVal('user_logged_in', 'True')
                     conn.setLocalStorageVal('current_user', json.dumps(user))
                     st.success("Login successful.")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Invalid username or password.")
                 
@@ -186,7 +186,7 @@ with st.sidebar:
         if logout_button:
             conn.setLocalStorageVal('user_logged_in', 'False')
             conn.setLocalStorageVal('current_user', '{}')
-            st.experimental_rerun()
+            st.rerun()
 
 # Media Search Section
 st.subheader("Search Media")
@@ -239,7 +239,7 @@ if user_logged_in:
 
                 save_media(current_user['username'], media_name, media_type, media_path)
                 st.success("Media uploaded successfully.")
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Please enter a media name and select a file.")
 else:

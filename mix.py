@@ -1,9 +1,14 @@
 import streamlit as st
 from streamlit_ws_localstorage import injectWebsocketCode, getOrCreateUID
 import json
+import ssl
+import os
+
+# Disable SSL certificate verification
+ssl_context = ssl._create_unverified_context()
 
 # Main call to the API, returns a communication object
-conn = injectWebsocketCode(hostPort='linode.liquidco.in', uid=getOrCreateUID())
+conn = injectWebsocketCode(hostPort='linode.liquidco.in', uid=getOrCreateUID(), ssl_context=ssl_context)
 
 # In-memory data storage
 data = {
@@ -232,9 +237,10 @@ if user_logged_in:
                 media_path = os.path.join(media_dir, f"{current_user['username']}_{media_name.replace(' ', '_')}.{file_extension}")
                 with open(media_path, "wb") as f:
                     f.write(media_file.read())
-                save_media
-                st.success(f"{media_type} uploaded successfully.")
+                save_media(current_user['username'], media_name, media_type, media_path)
+                st.success("Media uploaded successfully.")
+                st.experimental_rerun()
             else:
-                st.error("Please fill in all required fields.")
+                st.error("Please enter a media name and select a file.")
 else:
-    st.info("Please register or log in to upload media.")
+    st.write("Please register or log in to upload media.")

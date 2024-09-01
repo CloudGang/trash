@@ -1,14 +1,12 @@
 import streamlit as st
 from streamlit_ws_localstorage import injectWebsocketCode, getOrCreateUID
 import json
-import ssl
 import os
 
 # Disable SSL certificate verification
-ssl_context = ssl._create_unverified_context()
 
 # Main call to the API, returns a communication object
-conn = injectWebsocketCode(hostPort='linode.liquidco.in', uid=getOrCreateUID(), ssl_context=ssl_context)
+conn = injectWebsocketCode(hostPort='linode.liquidco.in', uid=getOrCreateUID())
 
 # In-memory data storage
 data = {

@@ -1,14 +1,9 @@
 import streamlit as st
+from streamlit_ws_localstorage import injectWebsocketCode, getOrCreateUID
 import json
-import os
 
-# File path for storing data
-data_file_path = 'data.json'
-
-# Initialize session state
-if 'user_logged_in' not in st.session_state:
-    st.session_state['user_logged_in'] = False
-    st.session_state['current_user'] = {}
+# Main call to the API, returns a communication object
+conn = injectWebsocketCode(hostPort='linode.liquidco.in', uid=getOrCreateUID())
 
 # In-memory data storage
 data = {
@@ -22,38 +17,40 @@ def get_recently_uploaded_media(n=3):
     return uploads[-n:] if uploads else []
 
 def load_data():
-    """Load data from a file."""
-    if os.path.exists(data_file_path):
-        with open(data_file_path, 'r') as f:
-            global data
-            data = json.load(f)
-    else:
-        save_data_to_file()
+    """Load data from local storage."""
+    users = conn.getLocalStorageVal('users')
+    uploads = conn.getLocalStorageVal('uploads')
 
-def save_data_to_file():
-    """Save data to a file."""
-    with open(data_file_path, 'w') as f:
-        json.dump(data, f, indent=4)
+    if users and uploads:
+        data['users'] = json.loads(users)
+        data['uploads'] = json.loads(uploads)
+    else:
+        save_data_to_storage()
+
+def save_data_to_storage():
+    """Save data to local storage."""
+    conn.setLocalStorageVal('users', json.dumps(data['users']))
+    conn.setLocalStorageVal('uploads', json.dumps(data['uploads']))
 
 def save_user(username, password, email, avatar_path=None):
-    """Save user data to the in-memory data structure and file."""
+    """Save user data to the in-memory data structure and local storage."""
     data['users'].append({
         'username': username,
         'password': password,
         'email': email,
         'avatar_path': avatar_path
     })
-    save_data_to_file()
+    save_data_to_storage()
 
 def save_media(username, media_name, media_type, media_path):
-    """Save media data to the in-memory data structure and file."""
+    """Save media data to the in-memory data structure and local storage."""
     data['uploads'].append({
         'username': username,
         'media_name': media_name,
         'media_type': media_type,
         'media_path': media_path
     })
-    save_data_to_file()
+    save_data_to_storage()
 
 def search_media(search_by, search_term):
     """Search media in the in-memory data structure by username or media name."""
@@ -121,7 +118,10 @@ else:
 
 # Sidebar for Registration, Login, or User Profile
 with st.sidebar:
-    if not st.session_state['user_logged_in']:
+    user_logged_in = conn.getLocalStorageVal('user_logged_in') == 'True'
+    current_user = json.loads(conn.getLocalStorageVal('current_user') or '{}')
+    
+    if not user_logged_in:
         st.header("Register")
         with st.form(key="registration_form"):
             username = st.text_input("Username")
@@ -145,12 +145,12 @@ with st.sidebar:
                             with open(avatar_path, "wb") as f:
                                 f.write(avatar.read())
                         save_user(username, password, email, avatar_path)
-                        st.session_state['user_logged_in'] = True
-                        st.session_state['current_user'] = {
+                        conn.setLocalStorageVal('user_logged_in', 'True')
+                        conn.setLocalStorageVal('current_user', json.dumps({
                             'username': username,
                             'email': email,
                             'avatar_path': avatar_path
-                        }
+                        }))
                         st.success("Registration successful.")
                         st.rerun()
                 else:
@@ -165,8 +165,8 @@ with st.sidebar:
             if login_button:
                 user = authenticate_user(login_username, login_password)
                 if user:
-                    st.session_state['user_logged_in'] = True
-                    st.session_state['current_user'] = user
+                    conn.setLocalStorageVal('user_logged_in', 'True')
+                    conn.setLocalStorageVal('current_user', json.dumps(user))
                     st.success("Login successful.")
                     st.experimental_rerun()
                 else:
@@ -174,15 +174,14 @@ with st.sidebar:
                 
     else:
         st.header("Profile")
-        user_info = st.session_state['current_user']
-        if user_info.get('avatar_path'):
-            st.image(user_info['avatar_path'], width=150)
-        st.write(f"**Username:** {user_info['username']}")
-        st.write(f"**Email:** {user_info['email']}")
+        if current_user.get('avatar_path'):
+            st.image(current_user['avatar_path'], width=150)
+        st.write(f"**Username:** {current_user['username']}")
+        st.write(f"**Email:** {current_user['email']}")
         logout_button = st.button("Logout")
         if logout_button:
-            st.session_state['user_logged_in'] = False
-            st.session_state['current_user'] = {}
+            conn.setLocalStorageVal('user_logged_in', 'False')
+            conn.setLocalStorageVal('current_user', '{}')
             st.experimental_rerun()
 
 # Media Search Section
@@ -217,7 +216,7 @@ if st.button("Search"):
 
 # Media Upload Section
 st.subheader("Upload Media")
-if st.session_state['user_logged_in']:
+if user_logged_in:
     with st.form(key="upload_form"):
         media_name = st.text_input("Media Name")
         media_type = st.selectbox("Media Type", ["Audio", "Video"])
@@ -230,13 +229,7 @@ if st.session_state['user_logged_in']:
                 media_dir = 'uploads'
                 os.makedirs(media_dir, exist_ok=True)
                 file_extension = media_file.name.split('.')[-1]
-                media_path = os.path.join(media_dir, f"{st.session_state['current_user']['username']}_{media_name.replace(' ', '_')}.{file_extension}")
+                media_path = os.path.join(media_dir, f"{current_user['username']}_{media_name.replace(' ', '_')}.{file_extension}")
                 with open(media_path, "wb") as f:
                     f.write(media_file.read())
-                save_media(st.session_state['current_user']['username'], media_name, media_type, media_path)
-                st.success("Media successfully uploaded.")
-            else:
-                st.error("Please provide a media name and upload a file.")
-else:
-    st.info("Please register or log in to upload media.")
-
+                save_media

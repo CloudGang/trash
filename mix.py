@@ -80,7 +80,6 @@ def authenticate_user(username, password):
 # Load data at the start
 load_data()
 
-st.set_page_config(page_title="Music Sharing Platform", layout="wide", page_icon="🎵")
 st.markdown(
     """
     <style>

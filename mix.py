@@ -233,3 +233,8 @@ if user_logged_in:
                 with open(media_path, "wb") as f:
                     f.write(media_file.read())
                 save_media
+                st.success(f"{media_type} uploaded successfully.")
+            else:
+                st.error("Please fill in all required fields.")
+else:
+    st.info("Please register or log in to upload media.")

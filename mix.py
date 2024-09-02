@@ -59,7 +59,7 @@ def upload_to_s3(file_path, file_content):
         # Write the file to S3
         conn_s3.write(file_path, file_content)
         # Construct the public URL (ensure your S3 bucket allows public access or configure accordingly)
-        return f"https://{st.secrets['S3_BUCKET']}.s3.{st.secrets['S3_REGION']}.amazonaws.com/{file_path}"
+        return f"https://{st.secrets['BUCKET']}.s3.{st.secrets['REGION']}.amazonaws.com/{file_path}"
     except Exception as e:
         st.error(f"Failed to upload file: {e}")
         return None

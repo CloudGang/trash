@@ -3,17 +3,6 @@ from st_files_connection import FilesConnection
 from streamlit_ws_localstorage import injectWebsocketCode, getOrCreateUID
 import json
 import os
-import ssl
-import websockets
-
-# Create an SSL context that does not verify certificates (insecure)
-ssl_context = ssl._create_unverified_context()
-
-async with websockets.connect("wss://your-host:port/?uid=your-uid", ssl=ssl_context) as ws:
-    # Your code to interact with the WebSocket server goes here
-    # For example, sending or receiving messages
-    conn_s3 = st.connection('s3', type=FilesConnection)
-
   
 # Initialize the FilesConnection for S3
 # Ensure that your Streamlit secrets are properly set with the necessary AWS credentials
@@ -22,7 +11,7 @@ async with websockets.connect("wss://your-host:port/?uid=your-uid", ssl=ssl_cont
 # - S3_SECRET_ACCESS_KEY
 # - S3_BUCKET
 # - S3_REGION
-
+conn_s3 = st.connection('s3', type=FilesConnection)
 
 # Main call to the API, returns a communication object
 conn = injectWebsocketCode(hostPort='linode.liquidco.in', uid=getOrCreateUID())

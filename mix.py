@@ -3,7 +3,13 @@ from st_files_connection import FilesConnection
 from streamlit_ws_localstorage import injectWebsocketCode, getOrCreateUID
 import json
 import os
+import ssl
+import websockets
 
+ssl_context = ssl._create_unverified_context()
+
+async with websockets.connect("wss://" + self.hostPort + "/?uid=" + self.uid, ssl=ssl_context) as ws:
+  
 # Initialize the FilesConnection for S3
 # Ensure that your Streamlit secrets are properly set with the necessary AWS credentials
 # The secrets should include:

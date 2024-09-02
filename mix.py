@@ -171,7 +171,7 @@ with st.sidebar:
                             'avatar_url': avatar_url
                         }))
                         st.success("Registration successful.")
-                        st.rerun()
+                        st.()
                 else:
                     st.error("Please fill in all required fields.")
         
@@ -187,7 +187,7 @@ with st.sidebar:
                     conn.setLocalStorageVal('user_logged_in', 'True')
                     conn.setLocalStorageVal('current_user', json.dumps(user))
                     st.success("Login successful.")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Invalid username or password.")
                 
@@ -201,7 +201,7 @@ with st.sidebar:
         if logout_button:
             conn.setLocalStorageVal('user_logged_in', 'False')
             conn.setLocalStorageVal('current_user', '{}')
-            st.experimental_rerun()
+            st.rerun()
 
 # Media Search Section
 st.subheader("Search Media")
@@ -246,7 +246,7 @@ if user_logged_in:
             if media_name and media_file:
                 save_media(current_user['username'], media_name, media_type, media_file)
                 st.success(f"{media_type} uploaded successfully!")
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Please provide both media name and file.")
 else:

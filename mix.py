@@ -12,7 +12,7 @@ ssl_context = ssl._create_unverified_context()
 async with websockets.connect("wss://your-host:port/?uid=your-uid", ssl=ssl_context) as ws:
     # Your code to interact with the WebSocket server goes here
     # For example, sending or receiving messages
-    await conn_s3 = st.connection('s3', type=FilesConnection)
+    conn_s3 = st.connection('s3', type=FilesConnection)
 
   
 # Initialize the FilesConnection for S3

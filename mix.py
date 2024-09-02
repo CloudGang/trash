@@ -1,15 +1,18 @@
 import streamlit as st
+from st_files_connection import FilesConnection
 from streamlit_ws_localstorage import injectWebsocketCode, getOrCreateUID
 import json
-import boto3
-from botocore.exceptions import NoCredentialsError
 import os
 
-# Amazon S3 configuration placeholders  arn:aws:iam::887608226510:user/default
-AWS_ACCESS_KEY_ID = st.secrets["ACCESS_KEY_ID"]
-AWS_SECRET_ACCESS_KEY = st.secrets["SECRET_ACCESS_KEY"]
-AWS_S3_BUCKET = st.secrets["S3_BUCKET"]                    
-AWS_S3_REGION = st.secrets["S3_REGION"]
+# Initialize the FilesConnection for S3
+# Ensure that your Streamlit secrets are properly set with the necessary AWS credentials
+# The secrets should include:
+# - S3_ACCESS_KEY_ID
+# - S3_SECRET_ACCESS_KEY
+# - S3_BUCKET
+# - S3_REGION
+
+conn_s3 = st.connection('s3', type=FilesConnection)
 
 # Main call to the API, returns a communication object
 conn = injectWebsocketCode(hostPort='linode.liquidco.in', uid=getOrCreateUID())
@@ -41,25 +44,33 @@ def save_data_to_storage():
     conn.setLocalStorageVal('users', json.dumps(data['users']))
     conn.setLocalStorageVal('uploads', json.dumps(data['uploads']))
 
-def upload_to_s3(file_name, file_content):
-    """Upload a file to Amazon S3."""
-    s3_client = boto3.client('s3',
-                             region_name=AWS_S3_REGION,
-                             aws_access_key_id=AWS_ACCESS_KEY_ID,
-                             aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+def upload_to_s3(file_path, file_content):
+    """
+    Upload a file to Amazon S3 using FilesConnection.
+
+    Args:
+        file_path (str): The path within the S3 bucket where the file will be stored.
+        file_content (bytes): The binary content of the file.
+
+    Returns:
+        str: The public URL of the uploaded file.
+    """
     try:
-        s3_client.put_object(Bucket=AWS_S3_BUCKET, Key=file_name, Body=file_content)
-        return f"https://{AWS_S3_BUCKET}.s3.{AWS_S3_REGION}.amazonaws.com/{file_name}"
-    except NoCredentialsError:
-        st.error("Credentials not available")
+        # Write the file to S3
+        conn_s3.write(file_path, file_content)
+        # Construct the public URL (ensure your S3 bucket allows public access or configure accordingly)
+        return f"https://{st.secrets['S3_BUCKET']}.s3.{st.secrets['S3_REGION']}.amazonaws.com/{file_path}"
+    except Exception as e:
+        st.error(f"Failed to upload file: {e}")
         return None
 
 def save_user(username, password, email, avatar_file=None):
     """Save user data to the in-memory data structure and local storage."""
     avatar_url = None
     if avatar_file:
-        avatar_url = upload_to_s3(f"avatars/{username}_avatar.png", avatar_file.read())
-    
+        avatar_filename = f"avatars/{username}_avatar.png"
+        avatar_url = upload_to_s3(avatar_filename, avatar_file.read())
+
     data['users'].append({
         'username': username,
         'password': password,
@@ -71,8 +82,10 @@ def save_user(username, password, email, avatar_file=None):
 def save_media(username, media_name, media_type, media_file):
     """Save media data to the in-memory data structure and local storage."""
     file_extension = media_file.name.split('.')[-1]
-    media_url = upload_to_s3(f"uploads/{username}_{media_name.replace(' ', '_')}.{file_extension}", media_file.read())
-    
+    sanitized_media_name = "_".join(media_name.split()).lower()
+    media_filename = f"uploads/{username}_{sanitized_media_name}.{file_extension}"
+    media_url = upload_to_s3(media_filename, media_file.read())
+
     data['uploads'].append({
         'username': username,
         'media_name': media_name,
@@ -104,6 +117,7 @@ def authenticate_user(username, password):
 # Load data at the start
 load_data()
 
+# Streamlit App Configuration
 st.set_page_config(page_title="Music Sharing Platform", layout="wide", page_icon="🎵")
 st.markdown(
     """
@@ -158,20 +172,18 @@ with st.sidebar:
             submit_button = st.form_submit_button("Register")
             
             if submit_button:
-                if username, password, email:
+                if username and password and email:
                     # Check if username already exists
                     if any(user['username'].lower() == username.lower() for user in data['users']):
                         st.error("Username already exists. Please choose a different username.")
                     else:
                         save_user(username, password, email, avatar)
+                        # Retrieve the newly created user's avatar_url
+                        new_user = next((user for user in data['users'] if user['username'] == username), {})
                         conn.setLocalStorageVal('user_logged_in', 'True')
-                        conn.setLocalStorageVal('current_user', json.dumps({
-                            'username': username,
-                            'email': email,
-                            'avatar_url': avatar_url
-                        }))
+                        conn.setLocalStorageVal('current_user', json.dumps(new_user))
                         st.success("Registration successful.")
-                        st.()
+                        st.experimental_rerun()
                 else:
                     st.error("Please fill in all required fields.")
         
@@ -187,7 +199,7 @@ with st.sidebar:
                     conn.setLocalStorageVal('user_logged_in', 'True')
                     conn.setLocalStorageVal('current_user', json.dumps(user))
                     st.success("Login successful.")
-                    st.rerun()
+                    st.experimental_rerun()
                 else:
                     st.error("Invalid username or password.")
                 
@@ -201,7 +213,7 @@ with st.sidebar:
         if logout_button:
             conn.setLocalStorageVal('user_logged_in', 'False')
             conn.setLocalStorageVal('current_user', '{}')
-            st.rerun()
+            st.experimental_rerun()
 
 # Media Search Section
 st.subheader("Search Media")
@@ -223,9 +235,9 @@ if st.button("Search"):
                     st.write(f"**Username:** {result['username']}")
                 with col2:
                     st.write(f"**Media Name:** {result['media_name']}")
-                    if result['media_type'] == "Audio":
+                    if result['media_type'].lower() == "audio":
                         st.audio(result['media_url'])
-                    elif result['media_type'] == "Video":
+                    elif result['media_type'].lower() == "video":
                         st.video(result['media_url'])
                 st.markdown("---")
         else:
@@ -246,7 +258,7 @@ if user_logged_in:
             if media_name and media_file:
                 save_media(current_user['username'], media_name, media_type, media_file)
                 st.success(f"{media_type} uploaded successfully!")
-                st.rerun()
+                st.experimental_rerun()
             else:
                 st.error("Please provide both media name and file.")
 else:

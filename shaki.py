@@ -2,10 +2,11 @@ import streamlit as st
 
 hide_menu_style = """
         <style>
+        .st-emotion-cache-15ecox0.ezrtsby0{visibility: hidden;}
         #MainMenu {visibility: hidden;}
         </style>
         """
-#st.markdown(hide_menu_style, unsafe_allow_html=True)
+st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 # State management using session state
 def set_page(page):

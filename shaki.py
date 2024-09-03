@@ -49,7 +49,7 @@ if "page" not in st.session_state:
 
 # Sidebar for navigation
 with st.sidebar:
-    st.image("images/R_S.png", key="img1")
+    st.image("images/R_S.png")
 
 st.sidebar.title("R&S Property Care LLC")
 st.sidebar.button("About", on_click=set_page, args=("About",))

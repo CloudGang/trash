@@ -3,6 +3,8 @@ import streamlit as st
 hide_menu_style = """
         <style>
         .st-emotion-cache-15ecox0.ezrtsby0{visibility: hidden;}
+        .viewerBadge_container__r5tak styles_viewerBadge__CvC9N{visibility: hidden;}
+        .viewerBadge_link__qRIco{visibility: hidden;}
         #MainMenu {visibility: hidden;}
         </style>
         """

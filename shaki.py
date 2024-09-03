@@ -15,10 +15,10 @@ def set_page(page):
 def show_page(page_name, title, content_function):
     #st.sidebar.markdown(f"### {page_name}")
     if st.session_state.page == page_name:
-        st.sidebar.button("About", on_click=set_page, args=("About",))
-        st.sidebar.button("Services", on_click=set_page, args=("Services",))
-        st.sidebar.button("Booking", on_click=set_page, args=("Booking",))
-        st.sidebar.button("Contact", on_click=set_page, args=("Contact",))
+        st.sidebar.button("About", key="123", on_click=set_page, args=("About",))
+        st.sidebar.button("Services", key="1234", on_click=set_page, args=("Services",))
+        st.sidebar.button("Booking", key="12345", on_click=set_page, args=("Booking",))
+        st.sidebar.button("Contact", key="123456", on_click=set_page, args=("Contact",))
         st.title(title)
         content_function()
 

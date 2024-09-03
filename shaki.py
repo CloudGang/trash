@@ -24,8 +24,8 @@ st.sidebar.button("Contact", on_click=set_page, args=("Contact",))
 # About Page
 def about_page():
     st.write("""
-    ### Welcome to R&S Housing LLC
-    R&S Housing LLC is a leading provider of housing solutions. We specialize in 
+    ### Welcome to R&S Property Care LLC
+    R&S Property Care LLC is a leading provider of housing solutions. We specialize in 
     affordable housing options and ensure that our clients have access to the best services 
     tailored to their needs.
     """)

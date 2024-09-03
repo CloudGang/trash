@@ -94,16 +94,16 @@ def contact_page():
 
 st.image("images/R_S.png", caption="R&S Property Care LLC")
 
-_container = st.container()
-col1, col2, col3, col4 = _container.columns(4)
-with col1:
-    st.button("About", key="123", on_click=set_page, args=("About",))
-with col2:
-    st.button("Services", key="1234", on_click=set_page, args=("Services",))
-with col3:
-    st.button("Booking", key="12345", on_click=set_page, args=("Booking",))
-with col4:
-    st.button("Contact", key="123456", on_click=set_page, args=("Contact",))
+#_container = st.container()
+#col1, col2, col3, col4 = _container.columns(4)
+#with col1:
+#    st.button("About", key="123", on_click=set_page, args=("About",))
+#with col2:
+#    st.button("Services", key="1234", on_click=set_page, args=("Services",))
+#with col3:
+#    st.button("Booking", key="12345", on_click=set_page, args=("Booking",))
+#with col4:
+#    st.button("Contact", key="123456", on_click=set_page, args=("Contact",))
 
 show_page("About", "About Us", about_page)
 show_page("Services", "Our Services", services_page)

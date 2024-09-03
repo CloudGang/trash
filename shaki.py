@@ -38,7 +38,7 @@ hide_menu_style = """
   padding: 0;
 }
 .st-emotion-cache-9aoz2h.e1vs0wn30 {
-  margin-top: -50px;
+  margin-top: 0px;
   padding: 0;
 }
 button[title="View fullscreen"]{

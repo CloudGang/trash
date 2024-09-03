@@ -32,9 +32,13 @@ hide_menu_style = """
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.stImage st-emotion-cache-1kyxreq e115fcil2 {
+.stImage st-emotion-cache-1kyxreq.e115fcil2 {
   margin-top: 0;
-  padding-top: 0;
+  padding: 0;
+}
+.st-emotion-cache-9aoz2h.e1vs0wn30 {
+  margin-top: 0;
+  padding: 0;
 }
         </style>
         """

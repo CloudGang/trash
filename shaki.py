@@ -5,7 +5,7 @@ def set_page(page):
     st.session_state.page = page
 
 def show_page(page_name, title, content_function):
-    st.sidebar.markdown(f"### {page_name}")
+    #st.sidebar.markdown(f"### {page_name}")
     if st.session_state.page == page_name:
         st.title(title)
         content_function()

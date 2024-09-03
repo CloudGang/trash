@@ -41,6 +41,9 @@ hide_menu_style = """
   margin-top: -50px;
   padding: 0;
 }
+button[title="View fullscreen"]{
+    visibility: hidden;
+}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)

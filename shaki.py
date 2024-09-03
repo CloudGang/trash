@@ -10,6 +10,7 @@ hide_menu_style = """
         footer {visibility: hidden;}
         .stButton {width: 50px;}
         .st-emotion-cache-ocqkz7.e1f1d6gn5 {width: 200px;}
+        .st-emotion-cache-ixnbjq.ef3psqc13 {width: 50;}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)

@@ -66,16 +66,19 @@ def contact_page():
     if st.button("Send"):
         st.write(f"Thank you, {name}! Your message has been sent.")
 
-sidebar_container = st.container()
+_container = st.container()
 
 # Use st.columns to create two columns within the container
-col1 = sidebar_container.columns(2)
+col1, col2, col3, col4 = _container.columns(4)
 
 # Place the buttons in the columns
 with col1:
     st.button("About", key="123", on_click=set_page, args=("About",))
+with col2:
     st.button("Services", key="1234", on_click=set_page, args=("Services",))
+with col3:
     st.button("Booking", key="12345", on_click=set_page, args=("Booking",))
+with col4:
     st.button("Contact", key="123456", on_click=set_page, args=("Contact",))
 
 # Display the selected page

@@ -32,6 +32,10 @@ hide_menu_style = """
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.stImage st-emotion-cache-1kyxreq e115fcil2 {
+  margin-top: 0;
+  padding-top: 0;
+}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)

@@ -2,6 +2,7 @@ import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from PIL import Image
 
 hide_menu_style = """
         <style>
@@ -137,7 +138,9 @@ def contact_page():
         else:
             st.write("Sorry, there was an error sending your message. Please try again later.")
 
-st.image("images/R_S_.png", width="200")
+image = Image.open("images/R_S_.png")
+logo = image.resize((200, 200))
+st.image(logo)
 
 # Display the selected page
 show_page("About", "About Us", about_page)

@@ -37,7 +37,7 @@ hide_menu_style = """
   padding: 0;
 }
 .st-emotion-cache-9aoz2h.e1vs0wn30 {
-  margin-top: -100px;
+  margin-top: -200px;
   padding: 0;
 }
         </style>

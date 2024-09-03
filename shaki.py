@@ -7,6 +7,7 @@ hide_menu_style = """
         .viewerBadge_link__qRIco {visibility: hidden;}
         .css-15zrgzn {display: none}
         #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)

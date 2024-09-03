@@ -69,15 +69,14 @@ def contact_page():
 sidebar_container = st.container()
 
 # Use st.columns to create two columns within the container
-col1, col2 = sidebar_container.columns(2)
+col1 = sidebar_container.columns(1)
 
 # Place the buttons in the columns
 with col1:
     st.button("About", key="123", on_click=set_page, args=("About",))
     st.button("Services", key="1234", on_click=set_page, args=("Services",))
-
-with col2:
     st.button("Booking", key="12345", on_click=set_page, args=("Booking",))
+    st.button("Contact", key="123456", on_click=set_page, args=("Contact",))
 
 # Display the selected page
 show_page("About", "About Us", about_page)

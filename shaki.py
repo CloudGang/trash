@@ -1,9 +1,4 @@
 import streamlit as st
-from streamlit_ws_localstorage import injectWebsocketCode, getOrCreateUID
-
-# Inject WebSocket Code and Create UID
-injectWebsocketCode()
-uid = getOrCreateUID()
 
 # State management using session state
 def set_page(page):

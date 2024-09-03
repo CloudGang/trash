@@ -44,6 +44,8 @@ hide_menu_style = """
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
+logo_url = "images/R_S.png"
+
 # Email configuration
 def send_email(subject, body, to_email="LneverdunL@gmail.com"):
     from_email = "your_email@gmail.com"  # Replace with your email address
@@ -81,9 +83,7 @@ if "page" not in st.session_state:
     st.session_state.page = "About"
 
 # Sidebar for navigation
-with st.sidebar:
-    st.image("images/R_S.png", key="00")
-
+st.sidebar.image(logo_url)
 st.sidebar.title("R&S Property Care LLC")
 st.sidebar.button("About", on_click=set_page, args=("About",))
 st.sidebar.button("Services", on_click=set_page, args=("Services",))

@@ -139,7 +139,7 @@ def contact_page():
             st.write("Sorry, there was an error sending your message. Please try again later.")
 
 image = Image.open("images/R_S_.png")
-logo = image.resize((200, 200))
+logo = image.resize((500, 500))
 st.image(logo)
 
 # Display the selected page

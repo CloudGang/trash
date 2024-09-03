@@ -48,7 +48,7 @@ if "page" not in st.session_state:
     st.session_state.page = "About"
 
 # Sidebar for navigation
-st.sidebar.title("R&S Housing LLC")
+st.sidebar.title("R&S Property Care LLC")
 st.sidebar.button("About", on_click=set_page, args=("About",))
 st.sidebar.button("Services", on_click=set_page, args=("Services",))
 st.sidebar.button("Booking", on_click=set_page, args=("Booking",))

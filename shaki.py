@@ -9,7 +9,7 @@ hide_menu_style = """
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         .stButton {width: 25px;}
-        .st-emotion-cache-ocqkz7.e1f1d6gn5 {width: 25px;}
+        .st-emotion-cache-ocqkz7.e1f1d6gn5 {width: 200px;}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)

@@ -8,9 +8,27 @@ hide_menu_style = """
         .css-15zrgzn {display: none}
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
-        .stButton {width: 50px;}
-        .st-emotion-cache-ocqkz7.e1f1d6gn5 {width: 200px;}
-        .st-emotion-cache-ixnbjq.ef3psqc13 {width: 50;}
+.stButton {
+  width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.stButton button {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.stButton button p {
+  margin: 0;
+  font-size: 12px; /* Adjust font size as needed */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)

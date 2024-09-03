@@ -37,7 +37,7 @@ hide_menu_style = """
   padding: 0;
 }
 .st-emotion-cache-9aoz2h.e1vs0wn30 {
-  margin-top: -100px;
+  margin-top: -50px;
   padding: 0;
 }
         </style>
@@ -137,7 +137,7 @@ def contact_page():
         else:
             st.write("Sorry, there was an error sending your message. Please try again later.")
 
-st.image("images/R_S_.png")
+st.image("images/R_S_.png", width="200")
 
 # Display the selected page
 show_page("About", "About Us", about_page)

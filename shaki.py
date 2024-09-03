@@ -137,7 +137,7 @@ def contact_page():
         else:
             st.write("Sorry, there was an error sending your message. Please try again later.")
 
-st.image("images/R_S.png")
+st.image("images/R_S_.png")
 
 # Display the selected page
 show_page("About", "About Us", about_page)

@@ -8,6 +8,7 @@ hide_menu_style = """
         .css-15zrgzn {display: none}
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
+        .stButton {width: 50px;}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)

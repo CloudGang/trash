@@ -69,7 +69,7 @@ def contact_page():
 sidebar_container = st.container()
 
 # Use st.columns to create two columns within the container
-col1 = sidebar_container.columns(1)
+col1 = sidebar_container.columns(2)
 
 # Place the buttons in the columns
 with col1:

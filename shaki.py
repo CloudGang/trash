@@ -28,10 +28,10 @@ if "page" not in st.session_state:
 
 # Sidebar for navigation
 st.sidebar.title("R&S Housing LLC")
-#st.sidebar.button("About", on_click=set_page, args=("About",))
-#st.sidebar.button("Services", on_click=set_page, args=("Services",))
-#st.sidebar.button("Booking", on_click=set_page, args=("Booking",))
-#st.sidebar.button("Contact", on_click=set_page, args=("Contact",))
+st.sidebar.button("About", on_click=set_page, args=("About",))
+st.sidebar.button("Services", on_click=set_page, args=("Services",))
+st.sidebar.button("Booking", on_click=set_page, args=("Booking",))
+st.sidebar.button("Contact", on_click=set_page, args=("Contact",))
 
 # About Page
 def about_page():
@@ -77,13 +77,13 @@ col1, col2, col3, col4 = _container.columns(4)
 
 # Place the buttons in the columns
 with col1:
-    st.button("About", key="123", on_click=set_page, args=("About",))
+    st.button("About", key="123", on_click=set_page, args=("About",), width=50)
 with col2:
-    st.button("Services", key="1234", on_click=set_page, args=("Services",))
+    st.button("Services", key="1234", on_click=set_page, args=("Services",), width=50)
 with col3:
-    st.button("Booking", key="12345", on_click=set_page, args=("Booking",))
+    st.button("Booking", key="12345", on_click=set_page, args=("Booking",), width=50)
 with col4:
-    st.button("Contact", key="123456", on_click=set_page, args=("Contact",))
+    st.button("Contact", key="123456", on_click=set_page, args=("Contact",), width=50)
 
 # Display the selected page
 show_page("About", "About Us", about_page)

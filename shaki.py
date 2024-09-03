@@ -33,11 +33,11 @@ hide_menu_style = """
   white-space: nowrap;
 }
 .stImage st-emotion-cache-1kyxreq.e115fcil2 {
-  margin-top: 0;
+  margin-top: -200px;
   padding: 0;
 }
 .st-emotion-cache-9aoz2h.e1vs0wn30 {
-  margin-top: -200px;
+  margin-top: 0;
   padding: 0;
 }
         </style>

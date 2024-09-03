@@ -90,13 +90,12 @@ def contact_page():
     message = st.text_area("Message", key="contact_message")
     if st.button("Send"):
         st.write(f"Thank you, {name}! Your message has been sent.")
+#################################################################
+
+st.image("images/R_S.png", caption="R&S Property Care LLC")
 
 _container = st.container()
-
-# Use st.columns to create two columns within the container
 col1, col2, col3, col4 = _container.columns(4)
-
-# Place the buttons in the columns
 with col1:
     st.button("About", key="123", on_click=set_page, args=("About",))
 with col2:
@@ -106,7 +105,6 @@ with col3:
 with col4:
     st.button("Contact", key="123456", on_click=set_page, args=("Contact",))
 
-# Display the selected page
 show_page("About", "About Us", about_page)
 show_page("Services", "Our Services", services_page)
 show_page("Booking", "Book an Appointment", booking_page)

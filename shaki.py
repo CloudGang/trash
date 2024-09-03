@@ -33,11 +33,11 @@ hide_menu_style = """
   white-space: nowrap;
 }
 .stImage st-emotion-cache-1kyxreq.e115fcil2 {
-  margin-top: -400px;
+  margin-top: 0;
   padding: 0;
 }
 .st-emotion-cache-9aoz2h.e1vs0wn30 {
-  margin-top: 0;
+  margin-top: -250px;
   padding: 0;
 }
         </style>
@@ -82,7 +82,7 @@ if "page" not in st.session_state:
 
 # Sidebar for navigation
 with st.sidebar:
-    st.image("images/R_S.png")
+    st.image("images/R_S.png", key="00")
 
 st.sidebar.title("R&S Property Care LLC")
 st.sidebar.button("About", on_click=set_page, args=("About",))

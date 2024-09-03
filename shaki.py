@@ -8,7 +8,7 @@ hide_menu_style = """
         .css-15zrgzn {display: none}
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
-        .stButton {width: 25px;}
+        .stButton {width: 50px;}
         .st-emotion-cache-ocqkz7.e1f1d6gn5 {width: 200px;}
         </style>
         """

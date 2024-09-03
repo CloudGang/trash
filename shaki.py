@@ -1,4 +1,7 @@
 import streamlit as st
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 hide_menu_style = """
         <style>
@@ -33,12 +36,34 @@ hide_menu_style = """
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
+# Email configuration
+def send_email(subject, body, to_email="LneverdunL@gmail.com"):
+    from_email = "your_email@gmail.com"  # Replace with your email address
+    from_password = "your_email_password"  # Replace with your email password
+
+    msg = MIMEMultipart()
+    msg["From"] = from_email
+    msg["To"] = to_email
+    msg["Subject"] = subject
+
+    msg.attach(MIMEText(body, "plain"))
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(from_email, from_password)
+        text = msg.as_string()
+        server.sendmail(from_email, to_email, text)
+        server.quit()
+        return True
+    except Exception as e:
+        return False
+
 # State management using session state
 def set_page(page):
     st.session_state.page = page
 
 def show_page(page_name, title, content_function):
-    #st.sidebar.markdown(f"### {page_name}")
     if st.session_state.page == page_name:
         st.title(title)
         content_function()
@@ -83,7 +108,12 @@ def booking_page():
     date = st.date_input("Preferred Date")
     time = st.time_input("Preferred Time")
     if st.button("Book"):
-        st.write(f"Thank you, {name}! Your appointment is booked for {date} at {time}.")
+        subject = "New Booking Request"
+        body = f"Name: {name}\nEmail: {email}\nPreferred Date: {date}\nPreferred Time: {time}"
+        if send_email(subject, body):
+            st.write(f"Thank you, {name}! Your appointment is booked for {date} at {time}.")
+        else:
+            st.write("Sorry, there was an error sending your booking request. Please try again later.")
 
 # Contact Page
 def contact_page():
@@ -92,22 +122,14 @@ def contact_page():
     email = st.text_input("Email", key="contact_email")
     message = st.text_area("Message", key="contact_message")
     if st.button("Send"):
-        st.write(f"Thank you, {name}! Your message has been sent.")
-#################################################################
+        subject = "New Contact Message"
+        body = f"Name: {name}\nEmail: {email}\nMessage: {message}"
+        if send_email(subject, body):
+            st.write(f"Thank you, {name}! Your message has been sent.")
+        else:
+            st.write("Sorry, there was an error sending your message. Please try again later.")
 
-st.image("images/R_S.png", caption="R&S Property Care LLC")
-
-#_container = st.container()
-#col1, col2, col3, col4 = _container.columns(4)
-#with col1:
-#    st.button("About", key="123", on_click=set_page, args=("About",))
-#with col2:
-#    st.button("Services", key="1234", on_click=set_page, args=("Services",))
-#with col3:
-#    st.button("Booking", key="12345", on_click=set_page, args=("Booking",))
-#with col4:
-#    st.button("Contact", key="123456", on_click=set_page, args=("Contact",))
-
+# Display the selected page
 show_page("About", "About Us", about_page)
 show_page("Services", "Our Services", services_page)
 show_page("Booking", "Book an Appointment", booking_page)

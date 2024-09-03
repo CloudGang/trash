@@ -66,7 +66,7 @@ def contact_page():
     if st.button("Send"):
         st.write(f"Thank you, {name}! Your message has been sent.")
 
-sidebar_container = st.sidebar.container()
+sidebar_container = st.container()
 
 # Use st.columns to create two columns within the container
 col1, col2 = sidebar_container.columns(2)

@@ -155,8 +155,8 @@ def contact_page():
 
 st.markdown('<div class="fade-in-out">', unsafe_allow_html=True)
 st.image("images/R_S_.png", use_column_width=True)
-st.markdown('</div>', unsafe_allow_html=True)
 show_page("About", "About Us", about_page)
 show_page("Services", "Our Services", services_page)
 show_page("Booking", "Book an Appointment", booking_page)
 show_page("Contact", "Contact Us", contact_page)
+st.markdown('</div>', unsafe_allow_html=True)

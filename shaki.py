@@ -173,7 +173,7 @@ def contact_page():
             st.write("Sorry, there was an error sending your message. Please try again later.")
 
 # Display the image with fading effect
-st.image("images/R_S.png", use_column_width=True)
+st.image("images/R_S_.png", use_column_width=True)
 st.markdown(fade_js, unsafe_allow_html=True)
 
 # Display the selected page

@@ -77,7 +77,7 @@ fade_js = """
 # Email configuration
 def send_email(subject, body, to_email="LneverdunL@gmail.com"):
     from_email = st.secrets["EMAIL"]  # Replace with your email address
-    from_password = st.secrets["PASSWORD"]  # Replace with your email password
+    from_password = st.secrets["PASS"]  # Replace with your email password
 
     msg = MIMEMultipart()
     msg["From"] = from_email

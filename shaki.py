@@ -35,6 +35,7 @@ hide_menu_style = """
 }
 
 img {
+width:50%;
 margin:0; 
 padding:0;
 }

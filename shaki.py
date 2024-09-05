@@ -57,8 +57,8 @@ padding:0;
 .fade-in-out img:not(:in-viewport) {
     opacity: 0;
 }
-#root > div:nth-child(1) > div.withScreencast > div > div > div > section.stAppViewMain.main.st-emotion-cache-bm2z3a.ea3mdgi8 > div.stAppViewViewBlockContainer.block-container.st-emotion-cache-13ln4jf.ea3mdgi5 > div > div > div > div:nth-child(3) > div > div > div > img {
-    display: none;
+path{
+display: none;
 }
         </style>
         """

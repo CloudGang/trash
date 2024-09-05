@@ -38,47 +38,27 @@ img {
 margin:0; 
 padding:0;
 }
+.fade-in-out {
+    position: relative;
+    overflow: hidden;
+}
+.fade-in-out img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    transition: opacity 1s ease-out;
+}
+.fade-in-out img {
+    opacity: 1;
+}
+.fade-in-out img:not(:in-viewport) {
+    opacity: 0;
+}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
-
-# JavaScript for fading the image on scroll
-fade_js = """
-    <script>
-        var header = document.getElementById('header');
-
-        function fadeOutOnScroll(element) {
-            if (!element) {
-                return;
-            }
-
-            var distanceToTop = window.pageYOffset + element.getBoundingClientRect().top;
-            var elementHeight = element.offsetHeight;
-            var scrollTop = document.documentElement.scrollTop;
-
-            var opacity = 1;
-
-            if (scrollTop > distanceToTop) {
-                opacity = 1 - (scrollTop - distanceToTop) / elementHeight;
-            }
-
-            if (opacity >= 0) {
-                element.style.opacity = opacity;
-            }
-        }
-
-        function scrollHandler() {
-            fadeOutOnScroll(header);
-        }
-
-        window.addEventListener('scroll', scrollHandler);
-    </script>
-    <style>
-        #header {
-            transition: opacity 0.5s ease;
-        }
-    </style>
-"""
 
 # Email configuration
 def send_email(subject, body, to_email="LneverdunL@gmail.com"):
@@ -173,13 +153,9 @@ def contact_page():
         else:
             st.write("Sorry, there was an error sending your message. Please try again later.")
 
-# Display the image with fading effect
+st.markdown('<div class="fade-in-out">', unsafe_allow_html=True)
 st.image("images/R_S_.png", use_column_width=True)
-#st.markdown(fade_js, unsafe_allow_html=True)
-my_html = f"<script>{fade_js}</script>"
-html(my_html)
-
-# Display the selected page
+st.markdown('</div>', unsafe_allow_html=True)
 show_page("About", "About Us", about_page)
 show_page("Services", "Our Services", services_page)
 show_page("Booking", "Book an Appointment", booking_page)

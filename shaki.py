@@ -2,7 +2,6 @@ import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from PIL import Image
 
 hide_menu_style = """
         <style>
@@ -33,27 +32,52 @@ hide_menu_style = """
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.stImage st-emotion-cache-1kyxreq.e115fcil2 {
-  margin-top: 0;
-  padding: 0;
-}
-.st-emotion-cache-9aoz2h.e1vs0wn30 {
-  margin-top: 0px;
-  padding: 0;
-}
-button[title="View fullscreen"]{
-    visibility: hidden;
-}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
-logo_url = "images/R_S.png"
+# JavaScript for fading the image on scroll
+fade_js = """
+    <script>
+        var header = document.getElementById('header');
+
+        function fadeOutOnScroll(element) {
+            if (!element) {
+                return;
+            }
+
+            var distanceToTop = window.pageYOffset + element.getBoundingClientRect().top;
+            var elementHeight = element.offsetHeight;
+            var scrollTop = document.documentElement.scrollTop;
+
+            var opacity = 1;
+
+            if (scrollTop > distanceToTop) {
+                opacity = 1 - (scrollTop - distanceToTop) / elementHeight;
+            }
+
+            if (opacity >= 0) {
+                element.style.opacity = opacity;
+            }
+        }
+
+        function scrollHandler() {
+            fadeOutOnScroll(header);
+        }
+
+        window.addEventListener('scroll', scrollHandler);
+    </script>
+    <style>
+        #header {
+            transition: opacity 0.5s ease;
+        }
+    </style>
+"""
 
 # Email configuration
 def send_email(subject, body, to_email="LneverdunL@gmail.com"):
-    from_email = "your_email@gmail.com"  # Replace with your email address
-    from_password = "your_email_password"  # Replace with your email password
+    from_email = st.secrets["EMAIL"]  # Replace with your email address
+    from_password = st.secrets["PASSWORD"]  # Replace with your email password
 
     msg = MIMEMultipart()
     msg["From"] = from_email
@@ -87,13 +111,14 @@ if "page" not in st.session_state:
     st.session_state.page = "About"
 
 # Sidebar for navigation
+with st.sidebar:
+    st.image("images/R_S.png")
+
 st.sidebar.title("R&S Property Care LLC")
 st.sidebar.button("About", on_click=set_page, args=("About",))
 st.sidebar.button("Services", on_click=set_page, args=("Services",))
 st.sidebar.button("Booking", on_click=set_page, args=("Booking",))
 st.sidebar.button("Contact", on_click=set_page, args=("Contact",))
-st.sidebar.image(logo_url)
-
 
 # About Page
 def about_page():
@@ -142,9 +167,9 @@ def contact_page():
         else:
             st.write("Sorry, there was an error sending your message. Please try again later.")
 
-image = Image.open("images/R_S_.png")
-logo = image.resize((500, 500))
-st.image(logo)
+# Display the image with fading effect
+st.image("images/R_S.png", caption="R&S Property Care LLC", use_column_width=True)
+st.markdown(fade_js, unsafe_allow_html=True)
 
 # Display the selected page
 show_page("About", "About Us", about_page)

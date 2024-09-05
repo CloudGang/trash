@@ -65,7 +65,6 @@ display: none;
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
-st.markdown('<div class="fade-in-out">', unsafe_allow_html=True)
 
 # Email configuration
 def send_email(subject, body, to_email="LneverdunL@gmail.com"):
@@ -161,8 +160,7 @@ def contact_page():
             st.write("Sorry, there was an error sending your message. Please try again later.")
 
 st.image("images/R_S_.png", use_column_width=True)
-show_page("About", "About Us", about_page)
-show_page("Services", "Our Services", services_page)
-show_page("Booking", "Book an Appointment", booking_page)
-show_page("Contact", "Contact Us", contact_page)
-st.markdown('</div>', unsafe_allow_html=True)
+#show_page("About", "About Us", about_page)
+#show_page("Services", "Our Services", services_page)
+#show_page("Booking", "Book an Appointment", booking_page)
+#show_page("Contact", "Contact Us", contact_page)

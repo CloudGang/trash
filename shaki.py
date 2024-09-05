@@ -174,7 +174,9 @@ def contact_page():
 
 # Display the image with fading effect
 st.image("images/R_S_.png", use_column_width=True)
-st.markdown(fade_js, unsafe_allow_html=True)
+#st.markdown(fade_js, unsafe_allow_html=True)
+my_html = f"<script>{fade_js}</script>"
+html(my_html)
 
 # Display the selected page
 show_page("About", "About Us", about_page)

@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit.components.v1 import html
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart

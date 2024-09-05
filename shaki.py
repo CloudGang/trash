@@ -59,7 +59,7 @@ padding:0;
 path{
 display: none;
 }
-st-emotion-cache-0 e1f1d6gn0{
+header{
 display: none;
 }
         </style>

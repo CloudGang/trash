@@ -57,9 +57,9 @@ padding:0;
 .fade-in-out img:not(:in-viewport) {
     opacity: 0;
 }
-        </style>
 .element-container:nth-child(3) .overlayBtn {visibility: hidden;}
 .element-container:nth-child(12) .overlayBtn {visibility: hidden;}
+        </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 st.markdown('<div class="fade-in-out">', unsafe_allow_html=True)

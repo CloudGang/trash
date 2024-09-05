@@ -35,7 +35,6 @@ hide_menu_style = """
 }
 
 img {
-width:50%;
 margin:0; 
 padding:0;
 }
@@ -58,6 +57,9 @@ padding:0;
     opacity: 0;
 }
 path{
+display: none;
+}
+st-emotion-cache-0.e1f1d6gn0{
 display: none;
 }
         </style>

@@ -32,6 +32,11 @@ hide_menu_style = """
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+img {
+margin:0; 
+padding:0;
+}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)

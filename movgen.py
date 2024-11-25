@@ -23,8 +23,8 @@ def generate_story(story_type):
     return ai_generated_story
 
 # Streamlit app layout
-st.title("AI Story Generator")
-st.subheader("Choose or enter a type of story for AI to generate.")
+st.title("Story Generator")
+st.subheader("Choose or enter a type of story for to generate.")
 
 # Predefined story types
 story_types = [

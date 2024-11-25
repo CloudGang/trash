@@ -22,7 +22,7 @@ def generate_story(story_type):
     prompt = f"Write a 1 to 2 minute story based on the theme: {story_type}."
     
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini",
         messages=[{
             "role": "user",
             "content": prompt

@@ -5,6 +5,7 @@ networkx
 numpy
 g4f
 pandas
+replicate
 plotly
 streamlit
 streamlit-ws-localstorage

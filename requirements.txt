@@ -3,6 +3,7 @@ st-files-connection
 logzero
 networkx
 numpy
+g4f
 pandas
 plotly
 streamlit

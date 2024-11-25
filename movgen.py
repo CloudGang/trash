@@ -29,7 +29,7 @@ def generate_images(story, num_images=5):
         # Use the story content as a prompt for image generation
         response = client.images.generate(
             model="flux",
-            prompt=story_type,
+            prompt=story_type_to_use,
         )
         # Extract the generated image URL
         if response.data:

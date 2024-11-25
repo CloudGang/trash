@@ -1,8 +1,25 @@
 import streamlit as st
-import streamlit.components.v1 as components
-from g4f.client import Client  # Ensure the `g4f.client` library is properly installed and available
-import base64
-import re
+from g4f.client import Client
+from PIL import Image
+from io import BytesIO
+import requests
+
+# Function to convert images to PIL Image format
+def to_image(image_url: str) -> Image:
+    """
+    Converts an image from a URL to a PIL Image object.
+
+    Args:
+        image_url (str): The URL of the image.
+
+    Returns:
+        Image: The converted PIL Image object.
+    """
+    response = requests.get(image_url)
+    if response.status_code == 200:
+        return Image.open(BytesIO(response.content))
+    else:
+        raise ValueError(f"Unable to fetch image from URL: {image_url}")
 
 # Function to handle AI story generation
 def generate_story(story_type):
@@ -22,6 +39,7 @@ def generate_story(story_type):
     ai_generated_story = response.choices[0].message.content.strip()
     return ai_generated_story
 
+# Function to handle AI image generation
 def generate_images(story, num_images=5):
     client = Client()  # Initialize client
     images = []
@@ -29,7 +47,7 @@ def generate_images(story, num_images=5):
         # Use the story content as a prompt for image generation
         response = client.images.generate(
             model="flux",
-            prompt=story_type_to_use,
+            prompt=story,
         )
         # Extract the generated image URL
         if response.data:
@@ -37,8 +55,8 @@ def generate_images(story, num_images=5):
     return images
 
 # Streamlit app layout
-st.title("Story Generator")
-st.subheader("Choose or enter a type of story for to generate.")
+st.title("AI Story and Image Generator")
+st.subheader("Choose or enter a type of story for AI to generate, along with images.")
 
 # Predefined story types
 story_types = [
@@ -56,7 +74,6 @@ selected_type = st.selectbox("Select a predefined story type:", story_types)
 
 # Optional manual input for custom story type
 custom_type = st.text_input("Or enter your own story type:")
-num_images = st.slider("Number of images to generate:", 5, 10, 5)
 
 # Determine the story type to use
 story_type_to_use = custom_type if custom_type.strip() else selected_type
@@ -72,12 +89,16 @@ if st.button("Generate Story and Images"):
 
             # Generate images
             st.subheader("Generated Images")
+            num_images = st.slider("Number of images to generate:", 5, 10, 5)
+            image_urls = generate_images(story, num_images=num_images)
             
-            images = generate_images(story_type_to_use, num_images=num_images)
-            st.write(f"Generated image URL: {image_url}")
-            if images:
-                for idx, img_url in enumerate(images, 1):
-                    st.image(img_url, caption=f"Generated Image {idx}", use_column_width=True)
+            if image_urls:
+                for idx, img_url in enumerate(image_urls, 1):
+                    try:
+                        pil_image = to_image(img_url)  # Convert to PIL Image
+                        st.image(pil_image, caption=f"Generated Image {idx}", use_column_width=True)
+                    except Exception as e:
+                        st.warning(f"Failed to process image {idx}: {e}")
             else:
                 st.warning("No images were generated. Please try again.")
         

@@ -4,6 +4,7 @@ import requests
 import replicate
 import os
 from io import BytesIO
+import random  # For generating unique seeds
 
 # PART 1: SETUP REPLICATE CREDENTIALS
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")  # Use your Replicate API token
@@ -16,7 +17,6 @@ replicate.Client(api_token=REPLICATE_API_TOKEN)
 
 # PART 2: AI STORY GENERATION FUNCTION
 def generate_story(story_type):
-    # Replace this placeholder with the actual client code for story generation
     from g4f.client import Client  # Replace with your GPT client library
     client = Client()
     prompt = f"Write a 1 to 2 minute story based on the theme: {story_type}."
@@ -31,17 +31,19 @@ def generate_story(story_type):
     return response.choices[0].message.content.strip()
 
 # PART 3: AI IMAGE GENERATION FUNCTION USING REPLICATE
-def generate_images(prompt, num_images=5, output_quality=80, random_seed=None):
+def generate_images(prompt, num_images=5, output_quality=80):
     generated_image_urls = []
     for _ in range(num_images):
         try:
+            # Generate a unique random seed for each image
+            unique_seed = random.randint(0, 10000)
+
             input_data = {
                 "prompt": prompt,
                 "aspect_ratio": '3:2',  # Set the aspect ratio
-                "quality": output_quality
+                "quality": output_quality,
+                "seed": unique_seed  # Use the unique seed for diversity
             }
-            if random_seed is not None:
-                input_data["seed"] = random_seed
 
             # Call the Replicate model to generate an image
             output = replicate.run(
@@ -54,8 +56,8 @@ def generate_images(prompt, num_images=5, output_quality=80, random_seed=None):
     return generated_image_urls
 
 # PART 4: STREAMLIT APP LAYOUT
-st.title("Story and Image Generator")
-st.subheader("Choose or enter a type of story to generate, along with images.")
+st.title("AI Story and Image Generator")
+st.subheader("Choose or enter a type of story for AI to generate, along with images.")
 
 # Predefined story types
 story_types = [
@@ -81,8 +83,6 @@ story_type_to_use = custom_type if custom_type.strip() else selected_type
 st.sidebar.title("Image Generation Options")
 num_images = st.sidebar.slider("Number of images:", 1, 10, 5)
 output_quality = st.sidebar.slider("Output Quality:", 50, 100, 80)
-use_random_seed = st.sidebar.checkbox("Use Random Seed", value=True)
-random_seed = st.sidebar.slider("Random Seed:", 0, 1000, 435) if use_random_seed else None
 
 # Generate story and images when the button is clicked
 if st.button("Generate Story and Images"):
@@ -95,7 +95,7 @@ if st.button("Generate Story and Images"):
 
             # Generate images
             st.subheader("Generated Images")
-            image_urls = generate_images(story, num_images=num_images, output_quality=output_quality, random_seed=random_seed)
+            image_urls = generate_images(story, num_images=num_images, output_quality=output_quality)
             
             if image_urls:
                 for idx, img_url in enumerate(image_urls, 1):

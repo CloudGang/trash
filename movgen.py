@@ -56,6 +56,7 @@ selected_type = st.selectbox("Select a predefined story type:", story_types)
 
 # Optional manual input for custom story type
 custom_type = st.text_input("Or enter your own story type:")
+num_images = st.slider("Number of images to generate:", 5, 10, 5)
 
 # Determine the story type to use
 story_type_to_use = custom_type if custom_type.strip() else selected_type
@@ -71,9 +72,9 @@ if st.button("Generate Story and Images"):
 
             # Generate images
             st.subheader("Generated Images")
-            num_images = st.slider("Number of images to generate:", 5, 10, 5)
-            images = generate_images(story, num_images=num_images)
             
+            images = generate_images(story_type_to_use, num_images=num_images)
+            st.write(f"Generated image URL: {image_url}")
             if images:
                 for idx, img_url in enumerate(images, 1):
                     st.image(img_url, caption=f"Generated Image {idx}", use_column_width=True)

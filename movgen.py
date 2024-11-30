@@ -96,7 +96,7 @@ if st.button("Generate Story, Images, and Audio"):
 
             # Convert the story to audio using gTTS
             tts = gTTS(text=story, lang='en')
-            audio_file = BytesIO()
+            #audio_file = BytesIO()
             tts.save(audio_file)
             #audio_file.seek(0)
 

@@ -97,11 +97,11 @@ if st.button("Generate Story, Images, and Audio"):
             # Convert the story to audio using gTTS
             tts = gTTS(text=story, lang='en')
             #audio_file = BytesIO()
-            tts.save(audio_file)
+            tts.save('story.mp3')
             #audio_file.seek(0)
 
             # Play the audio in Streamlit
-            st.audio(audio_file, format="audio/mp3")
+            st.audio('story.mp3')
 
             # Generate images
             st.subheader("Generated Images")

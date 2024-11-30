@@ -4,6 +4,7 @@ logzero
 networkx
 numpy
 g4f
+gTTs
 pandas
 replicate
 plotly
@@ -14,4 +15,3 @@ psycopg2-binary
 sqlalchemy
 opencage
 websockets
-gtts

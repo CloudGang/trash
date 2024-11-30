@@ -20,7 +20,7 @@ replicate.Client(api_token=REPLICATE_API_TOKEN)
 def generate_story(story_type):
     from g4f.client import Client  # Replace with your GPT client library
     client = Client()
-    prompt = f"Write a 1 to 2 minute story based on the theme: {story_type}."
+    prompt = f"Write a 1 minute story based on this theme: {story_type}."
     
     response = client.chat.completions.create(
         model="gpt-4o-mini",

@@ -20,7 +20,7 @@ replicate.Client(api_token=REPLICATE_API_TOKEN)
 def generate_story(story_type):
     from g4f.client import Client  # Replace with your GPT client library
     client = Client()
-    prompt = f"Write a 1 minute story based on this theme: {story_type}."
+    prompt = f"Write a 1-minute story based on this theme: {story_type}."
     
     response = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -32,9 +32,9 @@ def generate_story(story_type):
     return response.choices[0].message.content.strip()
 
 # PART 3: AI IMAGE GENERATION FUNCTION USING REPLICATE
-def generate_images(prompt, num_images=5, output_quality=80):
-    generated_image_urls = []
-    for _ in range(num_images):
+def generate_images(prompts, output_quality=80):
+    generated_images = []
+    for prompt in prompts:
         try:
             # Generate a unique random seed for each image
             unique_seed = random.randint(0, 10000)
@@ -51,10 +51,10 @@ def generate_images(prompt, num_images=5, output_quality=80):
                 "black-forest-labs/flux-schnell",
                 input=input_data
             )
-            generated_image_urls.append(output[0])  # Assuming output is a list with the image URL
+            generated_images.append(output[0])  # Assuming output is a list with the image URL
         except Exception as e:
             st.warning(f"Error generating an image: {e}")
-    return generated_image_urls
+    return generated_images
 
 # PART 4: STREAMLIT APP LAYOUT
 st.title("AI Story and Image Generator with Audio")
@@ -94,18 +94,21 @@ if st.button("Generate Story, Images, and Audio"):
             st.success("Story generated successfully!")
             st.text_area("Your AI-Generated Story:", value=story, height=300)
 
+            # Split the story into portions for image generation
+            story_parts = story.split('. ')
+            portion_length = len(story_parts) // num_images
+            prompts = [' '.join(story_parts[i * portion_length:(i + 1) * portion_length]) 
+                       for i in range(num_images)]
+            prompts = [p if p.strip() else "Story continues..." for p in prompts]
+
             # Convert the story to audio using gTTS
             tts = gTTS(text=story, lang='en')
-            #audio_file = BytesIO()
             tts.save('story.mp3')
-            #audio_file.seek(0)
-
-            # Play the audio in Streamlit
             st.audio('story.mp3')
 
             # Generate images
             st.subheader("Generated Images")
-            image_urls = generate_images(story, num_images=num_images, output_quality=output_quality)
+            image_urls = generate_images(prompts, output_quality=output_quality)
             
             if image_urls:
                 for idx, img_url in enumerate(image_urls, 1):
@@ -128,3 +131,4 @@ if st.button("Generate Story, Images, and Audio"):
         
         except Exception as e:
             st.error(f"An error occurred: {e}")
+

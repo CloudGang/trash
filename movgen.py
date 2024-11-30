@@ -5,6 +5,7 @@ import replicate
 import os
 from io import BytesIO
 import random  # For generating unique seeds
+from gtts import gTTS  # Import gTTS for text-to-speech
 
 # PART 1: SETUP REPLICATE CREDENTIALS
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")  # Use your Replicate API token
@@ -56,8 +57,8 @@ def generate_images(prompt, num_images=5, output_quality=80):
     return generated_image_urls
 
 # PART 4: STREAMLIT APP LAYOUT
-st.title("AI Story and Image Generator")
-st.subheader("Choose or enter a type of story for AI to generate, along with images.")
+st.title("AI Story and Image Generator with Audio")
+st.subheader("Choose or enter a type of story for AI to generate, along with images and audio.")
 
 # Predefined story types
 story_types = [
@@ -85,13 +86,22 @@ num_images = st.sidebar.slider("Number of images:", 1, 10, 5)
 output_quality = st.sidebar.slider("Output Quality:", 50, 100, 80)
 
 # Generate story and images when the button is clicked
-if st.button("Generate Story and Images"):
-    with st.spinner("Generating your story and images..."):
+if st.button("Generate Story, Images, and Audio"):
+    with st.spinner("Generating your story, images, and audio..."):
         try:
             # Generate the story
             story = generate_story(story_type_to_use)
             st.success("Story generated successfully!")
             st.text_area("Your AI-Generated Story:", value=story, height=300)
+
+            # Convert the story to audio using gTTS
+            tts = gTTS(text=story, lang='en')
+            audio_file = BytesIO()
+            tts.save(audio_file)
+            audio_file.seek(0)
+
+            # Play the audio in Streamlit
+            st.audio(audio_file, format="audio/mp3")
 
             # Generate images
             st.subheader("Generated Images")
